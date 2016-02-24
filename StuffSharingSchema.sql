@@ -1,34 +1,34 @@
-CREATE table User (
-firstName nvarchar(64) NOT NULL,
-lastName nvarchar(64) NOT NULL,
-password nvarchar(64) NOT NULL,
+CREATE table Users (
+firstName varchar(64) NOT NULL,
+lastName varchar(64) NOT NULL,
+password varchar(64) NOT NULL,
 dob DATE NOT NULL,
-email nvarchar(256) PRIMARY KEY,
+email varchar(256) PRIMARY KEY,
 reputation INT);
 
 CREATE table Categories (
-category nvarchar(64));
+category varchar(64) PRIMARY KEY);
 
 CREATE table itemList (
-itemID int AUTO_INCREMENT PRIMARY KEY;
-ownerEmail nvarchar(256) REFERENCES User(email),
-itemName nvarchar(64),
-itemDescription nvarchar(256),
-itemAvailability nvarchar(64),
-itemCategory nvarchar(64) REFERENCES Categories(category));
+itemID SERIAL PRIMARY KEY,
+ownerEmail varchar(256) REFERENCES Users(email),
+itemName varchar(64),
+itemDescription varchar(256),
+itemAvailability varchar(64),
+itemCategory varchar(64) REFERENCES Categories(category));
 
 CREATE table record (
-recordID int AUTO_INCREMENT PRIMARY KEY,
-borrowerEmail nvarchar(256) REFERENCES User(email),
+recordID SERIAL PRIMARY KEY,
+borrowerEmail varchar(256) REFERENCES Users(email),
 itemID INT REFERENCES itemList(itemID),
 fee INT,
 timeToReturn DATE,
 time TIME,
-successful BOOLEAN CHAR(6));
+successful BOOLEAN);
 
-Advertise 
-ownerEmail nvarchar(256) REFERENCES User(email),
+CREATE TABLE Advertise (
+ownerEmail varchar(256) REFERENCES Users(email),
 itemID INT REFERENCES itemList(itemID),
-statement nvarchar(256),
+statement varchar(256),
 price INT,
-location nvarchar(256));
+location varchar(256));
