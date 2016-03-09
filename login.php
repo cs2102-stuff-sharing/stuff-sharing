@@ -1,7 +1,17 @@
 <?php
   session_start();
   include('db.php');
-  if(isset($_POST['action']))
+  if(isset($_SESSION['key']))
+  {
+      header("Location: /stuff-sharing/welcome.php");
+  }
+  elseif (isset($_GET['error'])) {
+    if ($_GET['error']; == "NOT_LOGIN")
+    {
+        $message = "Please login before proceed";
+    }
+  }
+  elseif(isset($_POST['action']))
   {          
       if($_POST['action']=="login")
       {
@@ -40,3 +50,5 @@
   <p><input type="submit" value="login" /></p>
 </form>
 </div>
+
+<a href = "/stuff-sharing/signup.php">Register as new users</a>
