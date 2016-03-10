@@ -8,10 +8,6 @@ CREATE table Users (
     blackListCount INT DEFAULT 0
 );
 
-CREATE table Categories (
-    category VARCHAR(64) PRIMARY KEY
-);
-
 /* When a user deletes an item, it still preserves in the database so that the notifications can still be sent properly */
 CREATE table ItemList (
     itemId SERIAL PRIMARY KEY,
@@ -19,7 +15,7 @@ CREATE table ItemList (
     itemName VARCHAR(64),
     itemDescription VARCHAR(256),
     itemDeleted BOOLEAN DEFAULT FALSE,
-    itemCategory VARCHAR(64) REFERENCES Categories(category)
+    itemCategory VARCHAR(64) 
 );
 
 CREATE TABLE Advertise (
