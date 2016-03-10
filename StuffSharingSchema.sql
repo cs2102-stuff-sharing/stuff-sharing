@@ -19,13 +19,13 @@ CREATE table ItemList (
 );
 
 CREATE TABLE Advertise (
-    itemId SERIAL PRIMARY KEY REFERENCES itemList(itemId),
+    itemId SERIAL PRIMARY KEY REFERENCES ItemList(itemId),
     minimumBidPoint INT NOT NULL
 );
 
 /* All current biddings will be recorded in this table, after the bidding ends, all the bidding records (successful or not) will be removed */
 CREATE TABLE BiddingList (
-    itemId SERIAL REFERENCES itemList(itemId),
+    itemId SERIAL REFERENCES ItemList(itemId),
     bidderId VARCHAR(256) REFERENCES Users(email),
     bidAmount INT CHECK (bidAmount > 0),
     PRIMARY KEY (itemId, bidderId)
@@ -33,7 +33,7 @@ CREATE TABLE BiddingList (
 
 /* This table records all the successful biddings, the record will be deleted after the transaction is done */
 CREATE TABLE Record (
-    itemId SERIAL REFERENCES itemList(itemId),
+    itemId SERIAL REFERENCES ItemList(itemId),
     bidderId VARCHAR(256) REFERENCES Users(email),
     bidAmount INT CHECK (bidAmount > 0),
     PRIMARY KEY (itemId, bidderId)
@@ -42,6 +42,6 @@ CREATE TABLE Record (
 CREATE TABLE Notifications (
     receiver VARCHAR(256) REFERENCES Users(email),
     status VARCHAR(64) NOT NULL,
-    productId SERIAL NOT NULL,
+    productId SERIAL REFERENCES ItemList(itemId),
     PRIMARY KEY (receiver, productId)
 );
