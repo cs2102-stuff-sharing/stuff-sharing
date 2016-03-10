@@ -1,5 +1,7 @@
 <?php
+  session_start();
   include('db.php');
+  include('header.php');
   if(isset($_SESSION['key']))
   {
       header("Location: /stuff-sharing/welcome.php");
@@ -22,7 +24,7 @@
     }
     elseif ($numResults >= 1)
     {
-        $message = "The email(" . $email . ") you requested is already taken";
+        $message = "The email(" . $email . ") has already been taken";
     }
     else
     {
@@ -38,27 +40,56 @@
         }
         else
         {
-            //something is wrong with the sign up
+            $message = "Something seems to be wrong, please try later";
         }
     }
   }
-  
-  if (isset($message))
-  {
-      echo $message;
-  }
 ?>
 
-<div id="tabs-2">
-  <form action="signup.php" method="post">
-  <p><input id="first-name" name="firstName" type="text" placeholder="First Name"></p>
-  <p><input id="last-name" name="lastName" type="text" placeholder="Last Name"></p>
-  <p><input id="dob" name="dob" type="date"></p>
-  <p><input id="email" name="email" type="text" placeholder="Email"></p>
-  <p><input id="password" name="password" type="password" placeholder="Password">
-  <input name="action" type="hidden" value="signup" /></p>
-  <p><input type="submit" value="Signup" /></p>
-</form>
+<div class="container">
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Welcome to Stuff-Sharing</h3>
+        </div>
+        <div class="panel-body">
+          <?php
+            if(isset($message))
+            {
+              echo '<div class="alert alert-danger" role="alert">
+                      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                      <span class="sr-only">Error:</span>' . 
+                      $message .
+                    '</div>';
+            }
+          ?>
+          <form action="signup.php" method="post">
+            <fieldset>
+              <div class="form-group">
+                <input class="form-control" id="first-name" name="firstName" type="text" placeholder="First Name" autofocus>
+              </div>
+              <div class="form-group">
+                <input class="form-control" id="last-name" name="lastName" type="text" placeholder="Last Name">
+              </div>
+              <div class="form-group">
+                <input class="form-control" id="dob" name="dob" type="date">
+              </div>
+              <div class="form-group">
+                <input class="form-control" id="email" name="email" type="text" placeholder="Email">
+              </div>
+              <div class="form-group">
+                <input class="form-control" id="password" name="password" type="password" placeholder="Password">
+              </div>
+              <div class="form-group">
+                <input name="action" type="hidden" value="signup" /></p>
+              </div>
+              <button type="submit" class="btn btn-success btn-block">Sign up</button>
+              <p>Already have an account? <a href="/stuff-sharing/login.php">Log in</a></p>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-<a href = "/stuff-sharing/login.php">Already have an account? Click here to login</a>
