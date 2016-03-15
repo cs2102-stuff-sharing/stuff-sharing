@@ -7,8 +7,15 @@
   {
   	header("Location: /stuff-sharing/login.php?error=NOT_LOGIN");
   }
-  elseif(isset($_POST['action']) && $_POST['action'] == "addItem")
+  else
   {
+	$email = pg_escape_string($connection,$_SESSION['key']);
+    $query = "SELECT firstName, lastName FROM users where email='".$email."'";
+    $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
+    $row = pg_fetch_row($result);
+  }
+  if(isset($_POST['action']) && $_POST['action'] == "addItem")
+  {  
   	$itemName = pg_escape_string($connection,$_POST['itemName']);
   	$itemDescription = pg_escape_string($connection,$_POST['itemDescription']);
   	$itemCategory = pg_escape_string($connection,$_POST['itemCategory']);
@@ -18,12 +25,30 @@
 	$addItemResult = pg_query($connection, $addItemQuery);
 
 	if($addItemResult){
-
-		echo ("Item Added!!");
+		echo ("
+		<div class=\"alert alert-info\">
+			<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
+			Item added!
+		</div>
+        ");
 	}
   }
 
 ?>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/stuff-sharing/welcome.php"><?php echo $row[0]. " " .$row[1] ?></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
+          </ul> 
+        </div>
+      </div>
+    </nav>
 
 <div class="container">
   <div class="row">
@@ -71,3 +96,4 @@
     </div>
   </div>
 </div>
+</body>

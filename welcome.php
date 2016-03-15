@@ -15,6 +15,7 @@
         $row = pg_fetch_row($result);
     }
 ?>
+
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
@@ -28,6 +29,13 @@
         </div>
       </div>
     </nav>
+	
+	<div class="container">
+		<div class="alert alert-info">
+			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+			<strong>Hello!</strong> Just a dummy notification!
+		</div>
+	</div>
 
     <div class="container">
         <div class="starter-template">
