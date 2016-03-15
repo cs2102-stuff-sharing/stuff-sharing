@@ -43,6 +43,10 @@
             <a class="navbar-brand" href="/stuff-sharing/welcome.php"><?php echo $row[0]. " " .$row[1] ?></a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="itemlist.php">Item List</a></li>
+						<li class="active"><a href="additem.php">Add Item</a></li>
+					</ul>
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
           </ul> 
