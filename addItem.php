@@ -25,12 +25,7 @@
 	$addItemResult = pg_query($connection, $addItemQuery);
 
 	if($addItemResult){
-		echo ("
-		<div class=\"alert alert-info\">
-			<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
-			Item added!
-		</div>
-        ");
+		header("Location: /stuff-sharing/welcome.php?msg=ITEM_ADD_SUCCESS");
 	}
   }
 

@@ -15,7 +15,7 @@
 		$info = pg_fetch_row($result);
 	}
 
-	$itemresult = pg_query($connection,"SELECT itemName,itemId,itemCategory,itemDescription FROM ItemList ORDER BY itemName ASC");
+	$itemresult = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l, Advertise a WHERE l.itemId = a.itemId ORDER BY itemName ASC");
 ?>
 <body>
     <nav class="navbar navbar-inverse navbar-fixed-top">
