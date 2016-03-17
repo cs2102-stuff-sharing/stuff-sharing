@@ -3,6 +3,18 @@
     session_start();
     include('db.php');
     include('header.php');
+?>
+<script>
+function askMinBid(pointid, formid) {
+    var minbid = prompt("Please enter the minimum bid point");
+    
+    if (parseInt(minbid) > 0) {
+        document.getElementById(pointid).value = minbid;
+				document.getElementById(formid).submit();
+    }
+}
+</script>
+<?php
     if(!isset($_SESSION['key']))
     {
         header("Location: /stuff-sharing/login.php?error=NOT_LOGIN");
@@ -18,6 +30,25 @@
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
     $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
+		$advertisements = pg_query($connection,"SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint from Advertise a, ItemList i, Users u where 
+				a.itemid = i.itemid and i.owneremail = u.email") or die('Query failed:'.pg_last_error());
+		
+		if(isset($_POST['itemid']))
+		{
+		$itemid = pg_escape_string($connection,$_POST['itemid']);
+		$minbid = pg_escape_string($connection,$_POST['minbid']);
+		$AddAdQuery = "insert into Advertise(itemId,minimumBidPoint) values('". $itemid . "','" .$minbid ."')";
+		$AddAdResult = pg_query($connection, $AddAdQuery);
+			if($AddAdResult)
+			{
+				//add ad successfully
+				header("Location: /stuff-sharing/welcome.php");
+			}
+			else
+			{
+
+			}
+		}
 ?>
 
 <body>
@@ -62,26 +93,51 @@
 
     <div class="container">
         <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3><div><p>To be implemented</p></div></div>
-        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3>				
+					<div class="table-responsive">
+					<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						while($row = pg_fetch_row($advertisements)){
+							echo "\t<tr>\n";
+							echo "\t\t<td>$row[0]</td>\n";
+							echo "\t\t<td>$row[1]</td>\n";
+							echo "\t\t<td>$row[2] ".$row[3]."</td>\n";
+							echo "\t\t<td>$row[4]</td>\n";		
+							echo "\t</tr>\n";
+						}
+					?>
+					</tbody>
+					</table>
+					</div>
+				</div>
         <div class="accordionSection" id="archivedItems">
             <h3>Archived Items</h3>
             <div><div class="table-responsive">
             <table class="table table-striped table-bordered table-list">
             <thead>
               <tr>
-                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th>
+                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th>
               </tr>
             </thead>
-            <?php
-    
-            while($row = pg_fetch_array($archivedItems, null, PGSQL_ASSOC)){
-                echo "\t<tbody>\n\t<tr>\n";
-                foreach ($row as $col_value) {
-                    echo "\t\t<td>$col_value</td>\n";
-                }
-                echo "\t</tr>\n\t</tbody>\n";
-            }
-            ?>
+						<?php
+						while($row = pg_fetch_row($archivedItems)){
+							echo "\t<tbody>\n\t<tr>\n";
+							foreach ($row as $col_value) {
+								echo "\t\t<td>$col_value</td>\n";
+							}
+							echo "\t\t<td><form id=\"bidform".$row[1]."\" action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[1]."\"/>";
+							echo "<input id=\"point".$row[1]."\" type=\"hidden\" name=\"minbid\"/>";
+							echo "<button onclick=\"askMinBid('point".$row[1]."', 'bidform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
+							echo "\t</tr>\n\t</tbody>\n";
+						}
+						?>
             </table>
           </div></div>
     </div>
