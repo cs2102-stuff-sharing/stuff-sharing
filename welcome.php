@@ -48,4 +48,10 @@
             ?>
         </div>
     </div>
+
+    <div class="container">
+        <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="archivedItems"><h3>Archived Items</h3><div><p>To be implemented</p></div></div>
+    </div>
 </body>
