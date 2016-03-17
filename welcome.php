@@ -13,10 +13,11 @@
         $query = "SELECT firstName, lastName FROM users where email='".$email."'";
         $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
         $row = pg_fetch_row($result);
-				$adquery = "SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint from Advertise a, ItemList i, Users u where 
-				a.itemid = i.itemid and i.owneremail = u.email";
-				$adresult = pg_query($connection,$adquery) or die('Query failed:'.pg_last_error());
     }
+
+    //get archived items
+    $email = pg_escape_string($connection,$_SESSION['key']);
+    $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
 ?>
 
 <body>
@@ -36,13 +37,20 @@
         </div>
       </div>
     </nav>
-	
-	<div class="container">
-		<div class="alert alert-info">
-			<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-			<strong>Hello!</strong> Just a dummy notification!
-		</div>
-	</div>
+
+    <?php
+    if(isset($_GET['msg']))
+    {
+        if($_GET['msg'] = "ITEM_ADD_SUCCESS")
+        {
+            echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> Item added!
+</div></div>";
+        }
+    }
+    ?>
 
     <div class="container">
         <div class="starter-template">
@@ -54,29 +62,27 @@
 
     <div class="container">
         <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3><div><p>To be implemented</p></div></div>
-        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3>				
-					<div class="table-responsive">
-					<table class="table table-striped table-bordered table-list">
-					<thead>
-						<tr>
-						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th>
-						</tr>
-					</thead>
-					<tbody>
-					<?php
-						while($adrow = pg_fetch_row($adresult)){
-							echo "\t<tr>\n";
-							echo "\t\t<td>$adrow[0]</td>\n";
-							echo "\t\t<td>$adrow[1]</td>\n";
-							echo "\t\t<td>$adrow[2]</td>\n";
-							echo "\t\t<td>$adrow[4]</td>\n";		
-							echo "\t</tr>\n";
-						}
-					?>
-					</tbody>
-					</table>
-					</div>
-				</div>
-        <div class="accordionSection" id="archivedItems"><h3>Archived Items</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="archivedItems">
+            <h3>Archived Items</h3>
+            <div><div class="table-responsive">
+            <table class="table table-striped table-bordered table-list">
+            <thead>
+              <tr>
+                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th>
+              </tr>
+            </thead>
+            <?php
+    
+            while($row = pg_fetch_array($archivedItems, null, PGSQL_ASSOC)){
+                echo "\t<tbody>\n\t<tr>\n";
+                foreach ($row as $col_value) {
+                    echo "\t\t<td>$col_value</td>\n";
+                }
+                echo "\t</tr>\n\t</tbody>\n";
+            }
+            ?>
+            </table>
+          </div></div>
     </div>
 </body>
