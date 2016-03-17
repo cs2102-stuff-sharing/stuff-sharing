@@ -4,6 +4,7 @@ CREATE table Users (
     password VARCHAR(64) NOT NULL,
     dob DATE NOT NULL,
     email VARCHAR(256) PRIMARY KEY,
+    isAdmin BOOLEAN DEFAULT false,
     userPoint INT DEFAULT 100,
     blackListCount INT DEFAULT 0
 );
@@ -45,3 +46,7 @@ CREATE TABLE Notifications (
     productId SERIAL REFERENCES ItemList(itemId),
     PRIMARY KEY (receiver, productId)
 );
+
+/* Add default administrator account, password: 'adminpassword */
+INSERT INTO Users( firstName, lastName, dob, email, password, isAdmin) 
+VALUES('Admin', 'Root', CURRENT_DATE, 'admin@stuffsharing.com','e3274be5c857fb42ab72d786e281b4b8', true);
