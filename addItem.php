@@ -19,9 +19,8 @@
   	$itemName = pg_escape_string($connection,$_POST['itemName']);
   	$itemDescription = pg_escape_string($connection,$_POST['itemDescription']);
   	$itemCategory = pg_escape_string($connection,$_POST['itemCategory']);
-
-  	$addItemQuery = "insert into ItemList(itemName,itemDescription,itemCategory) values ('"
-  		. $itemName ."','" . $itemDescription ."', '" .$itemCategory."')";
+  	$addItemQuery = "insert into ItemList(itemName,itemDescription,itemCategory,ownerEmail) values ('"
+  		. $itemName ."','" . $itemDescription ."', '" .$itemCategory."', '".$email."')";
 	$addItemResult = pg_query($connection, $addItemQuery);
 
 	if($addItemResult){

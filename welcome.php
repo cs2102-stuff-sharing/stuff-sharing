@@ -13,6 +13,9 @@
         $query = "SELECT firstName, lastName FROM users where email='".$email."'";
         $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
         $row = pg_fetch_row($result);
+				$adquery = "SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint from Advertise a, ItemList i, Users u where 
+				a.itemid = i.itemid and i.owneremail = u.email";
+				$adresult = pg_query($connection,$adquery) or die('Query failed:'.pg_last_error());
     }
 ?>
 
@@ -51,7 +54,29 @@
 
     <div class="container">
         <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3><div><p>To be implemented</p></div></div>
-        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3>				
+					<div class="table-responsive">
+					<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						while($adrow = pg_fetch_row($adresult)){
+							echo "\t<tr>\n";
+							echo "\t\t<td>$adrow[0]</td>\n";
+							echo "\t\t<td>$adrow[1]</td>\n";
+							echo "\t\t<td>$adrow[2]</td>\n";
+							echo "\t\t<td>$adrow[4]</td>\n";		
+							echo "\t</tr>\n";
+						}
+					?>
+					</tbody>
+					</table>
+					</div>
+				</div>
         <div class="accordionSection" id="archivedItems"><h3>Archived Items</h3><div><p>To be implemented</p></div></div>
     </div>
 </body>
