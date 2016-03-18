@@ -30,8 +30,9 @@ function askMinBid(pointid, formid) {
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
     $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
-		$advertisements = pg_query($connection,"SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint from Advertise a, ItemList i, Users u where 
-				a.itemid = i.itemid and i.owneremail = u.email") or die('Query failed:'.pg_last_error());
+		//get advertised items
+		$advertisements = pg_query($connection,"SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint,i.itemId from Advertise a, ItemList i, Users u where 
+				a.itemid = i.itemid and i.owneremail = u.email and i.owneremail <> '".$email."'") or die('Query failed:'.pg_last_error());
 		
 		if(isset($_POST['itemid']))
 		{
@@ -48,6 +49,13 @@ function askMinBid(pointid, formid) {
 			{
 
 			}
+		}
+		
+		if(isset($_POST['biditemid']))
+		{
+		$biditemid = $_POST['biditemid'];
+		$_SESSION['biditemid'] = $biditemid;
+		header("Location: /stuff-sharing/bid.php");
 		}
 ?>
 
@@ -98,7 +106,7 @@ function askMinBid(pointid, formid) {
 					<table class="table table-striped table-bordered table-list">
 					<thead>
 						<tr>
-						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th>
+						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th> <th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -108,7 +116,10 @@ function askMinBid(pointid, formid) {
 							echo "\t\t<td>$row[0]</td>\n";
 							echo "\t\t<td>$row[1]</td>\n";
 							echo "\t\t<td>$row[2] ".$row[3]."</td>\n";
-							echo "\t\t<td>$row[4]</td>\n";		
+							echo "\t\t<td>$row[4]</td>\n";
+							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"biditemid\" value=\"".$row[5]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">go bid</button></form></td>\n";
 							echo "\t</tr>\n";
 						}
 					?>
@@ -125,19 +136,21 @@ function askMinBid(pointid, formid) {
                 <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th>
               </tr>
             </thead>
+						<tbody>
 						<?php
 						while($row = pg_fetch_row($archivedItems)){
-							echo "\t<tbody>\n\t<tr>\n";
+							echo "\t<tr>\n";
 							foreach ($row as $col_value) {
 								echo "\t\t<td>$col_value</td>\n";
 							}
-							echo "\t\t<td><form id=\"bidform".$row[1]."\" action=\"welcome.php\" method=\"post\">";
+							echo "\t\t<td><form id=\"adform".$row[1]."\" action=\"welcome.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[1]."\"/>";
 							echo "<input id=\"point".$row[1]."\" type=\"hidden\" name=\"minbid\"/>";
-							echo "<button onclick=\"askMinBid('point".$row[1]."', 'bidform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
-							echo "\t</tr>\n\t</tbody>\n";
+							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
+							echo "\t</tr>\n";
 						}
 						?>
+						</tbody>
             </table>
           </div></div>
     </div>
