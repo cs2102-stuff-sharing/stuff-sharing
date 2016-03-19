@@ -4,16 +4,6 @@
     include('db.php');
     include('header.php');
 ?>
-<script>
-function askMinBid(pointid, formid) {
-    var minbid = prompt("Please enter the minimum bid point");
-    
-    if (parseInt(minbid) > 0) {
-        document.getElementById(pointid).value = minbid;
-				document.getElementById(formid).submit();
-    }
-}
-</script>
 <?php
     if(!isset($_SESSION['key']))
     {
@@ -43,7 +33,7 @@ function askMinBid(pointid, formid) {
 			if($AddAdResult)
 			{
 				//add ad successfully
-				header("Location: /stuff-sharing/welcome.php");
+				header("Location: /stuff-sharing/welcome.php?msg=ADV_SUCCESS");
 			}
 			else
 			{
@@ -86,6 +76,14 @@ function askMinBid(pointid, formid) {
             <div class='alert alert-success alert-dismissible' role='alert'>
   <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
   <strong>Success!</strong> Item added!
+</div></div>";
+        }
+        else if ($_GET['msg'] = "ADV_SUCCESS")
+        {
+        	 echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> Item advertised!
 </div></div>";
         }
     }
