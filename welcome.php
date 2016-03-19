@@ -67,7 +67,7 @@ function askMinBid(pointid, formid) {
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li><a href="itemlist.php">Item List</a></li>
+						<li><a href="myitem.php">My Items</a></li>
 						<li><a href="additem.php">Add Item</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">
@@ -101,7 +101,7 @@ function askMinBid(pointid, formid) {
 
     <div class="container">
         <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3><div><p>To be implemented</p></div></div>
-        <div class="accordionSection" id="advertisingItems"><h3>Advertising Items</h3>				
+        <div class="accordionSection" id="advertisingItems"><h3>Advertisements</h3>				
 					<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
 					<thead>
@@ -127,31 +127,5 @@ function askMinBid(pointid, formid) {
 					</table>
 					</div>
 				</div>
-        <div class="accordionSection" id="archivedItems">
-            <h3>Archived Items</h3>
-            <div><div class="table-responsive">
-            <table class="table table-striped table-bordered table-list">
-            <thead>
-              <tr>
-                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th>
-              </tr>
-            </thead>
-						<tbody>
-						<?php
-						while($row = pg_fetch_row($archivedItems)){
-							echo "\t<tr>\n";
-							foreach ($row as $col_value) {
-								echo "\t\t<td>$col_value</td>\n";
-							}
-							echo "\t\t<td><form id=\"adform".$row[1]."\" action=\"welcome.php\" method=\"post\">";
-							echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[1]."\"/>";
-							echo "<input id=\"point".$row[1]."\" type=\"hidden\" name=\"minbid\"/>";
-							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
-							echo "\t</tr>\n";
-						}
-						?>
-						</tbody>
-            </table>
-          </div></div>
     </div>
 </body>

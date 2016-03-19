@@ -24,7 +24,12 @@
 	$addItemResult = pg_query($connection, $addItemQuery);
 
 	if($addItemResult){
-		header("Location: /stuff-sharing/welcome.php?msg=ITEM_ADD_SUCCESS");
+		echo ("
+		<div class=\"alert alert-info\">
+			<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
+			Item added!
+		</div>
+        ");
 	}
   }
 
@@ -38,7 +43,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li><a href="itemlist.php">Item List</a></li>
+						<li><a href="myitem.php">My Items</a></li>
 						<li class="active"><a href="additem.php">Add Item</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">

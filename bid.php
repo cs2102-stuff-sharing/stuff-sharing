@@ -121,7 +121,7 @@ function update(minbid, userpoint, currentbid) {
         </div>
         <div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li class="active"><a href="itemlist.php">Item List</a></li>
+						<li><a href="myitem.php">My Items</a></li>
 						<li><a href="additem.php">Add Item</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">
