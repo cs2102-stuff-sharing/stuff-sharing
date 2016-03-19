@@ -146,7 +146,9 @@ function askMinBid(pointid, formid) {
 							echo "\t\t<td><form id=\"adform".$row[1]."\" action=\"welcome.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[1]."\"/>";
 							echo "<input id=\"point".$row[1]."\" type=\"hidden\" name=\"minbid\"/>";
-							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
+							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success \">advertise</button></form>";
+                            echo "<button type=\"button\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></button>\n";
+                            echo "<button type=\"button\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button>\n";
 							echo "\t</tr>\n";
 						}
 						?>
