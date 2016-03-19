@@ -125,36 +125,5 @@
 					</table>
 					</div>
 				</div>
-<<<<<<< HEAD
-=======
-        <div class="accordionSection" id="archivedItems">
-            <h3>Archived Items</h3>
-            <div><div class="table-responsive">
-            <table class="table table-striped table-bordered table-list">
-            <thead>
-              <tr>
-                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th>
-              </tr>
-            </thead>
-						<tbody>
-						<?php
-						while($row = pg_fetch_row($archivedItems)){
-							echo "\t<tr>\n";
-							foreach ($row as $col_value) {
-								echo "\t\t<td>$col_value</td>\n";
-							}
-							echo "\t\t<td><form id=\"adform".$row[1]."\" action=\"welcome.php\" method=\"post\">";
-							echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[1]."\"/>";
-							echo "<input id=\"point".$row[1]."\" type=\"hidden\" name=\"minbid\"/>";
-							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success \">advertise</button></form>";
-                            echo "<button type=\"button\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></button>\n";
-                            echo "<button type=\"button\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button>\n";
-							echo "\t</tr>\n";
-						}
-						?>
-						</tbody>
-            </table>
-          </div></div>
->>>>>>> 50e2797df716c7e4b85e0718d71cbfee65a21566
     </div>
 </body>

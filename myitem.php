@@ -2,18 +2,7 @@
     session_start();
     include('db.php');
     include('header.php');
-?>
-<script>
-function askMinBid(pointid, formid) {
-    var minbid = prompt("Please enter the minimum bid point");
-    
-    if (parseInt(minbid) > 0) {
-        document.getElementById(pointid).value = minbid;
-				document.getElementById(formid).submit();
-    }
-}
-</script>
-<?php
+
     if(!isset($_SESSION['key']))
     {
         header("Location: /stuff-sharing/login.php?error=NOT_LOGIN");
@@ -160,7 +149,7 @@ function askMinBid(pointid, formid) {
             <table class="table table-striped table-bordered table-list">
             <thead>
               <tr>
-                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th> <th></th>
+                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th> <th></th> <th></th>
               </tr>
             </thead>
 						<tbody>
@@ -176,7 +165,8 @@ function askMinBid(pointid, formid) {
 							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
 							echo "\t\t<td><form action=\"myitem.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"edititemid\" value=\"".$row[1]."\"/>";
-							echo "<button type=\"submit\" class=\"btn btn-info\">edit</button></form></td>\n";
+							echo "<button type=\"submit\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></button></form></td>\n";
+							echo "\t\t<td><button type=\"button\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button></td>\n";
 							echo "\t</tr>\n";
 						}
 						?>

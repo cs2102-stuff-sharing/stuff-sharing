@@ -21,4 +21,5 @@
 	<link rel="stylesheet" type="text/css" href="/stuff-sharing/style.css">
 
 	<script src="welcome.js"></script>
+	<script src="myitem.js"></script>
 </head>
