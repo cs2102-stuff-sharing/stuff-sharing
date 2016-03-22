@@ -10,7 +10,7 @@
   else
   {
 	$email = pg_escape_string($connection,$_SESSION['key']);
-    $query = "SELECT firstName, lastName FROM users where email='".$email."'";
+    $query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
     $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
     $row = pg_fetch_row($result);
   }
@@ -26,11 +26,11 @@
 		}
 		else
 		{
-			$row = pg_fetch_row($itemresult);
-			$itemName = $row[0];
-			$itemId = $row[1];
-			$itemCategory = $row[2];
-			$itemDescription = $row[3];			
+			$rowContent = pg_fetch_row($itemresult);
+			$itemName = $rowContent[0];
+			$itemId = $rowContent[1];
+			$itemCategory = $rowContent[2];
+			$itemDescription = $rowContent[3];			
 		}
 	}
 
@@ -67,6 +67,7 @@
 						<li><a href="additem.php">Add Item</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">
+		  <li><a class="navbar-brand"><?php echo " User Points: ".$row[2]  ?></a></li>
             <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
           </ul> 
         </div>
