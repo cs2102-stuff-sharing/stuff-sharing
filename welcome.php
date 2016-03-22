@@ -12,7 +12,7 @@
     else
     {
         $email = pg_escape_string($connection,$_SESSION['key']);
-        $query = "SELECT firstName, lastName FROM users where email='".$email."'";
+        $query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
         $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
         $row = pg_fetch_row($result);
     }
@@ -25,6 +25,9 @@
 	a.itemid = i.itemid and i.owneremail = u.email and i.owneremail <> '".$email."'") or die('Query failed:'.pg_last_error());		
 	//get particulars
 	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
+	or die ('Query failed: '.pg_last_error());
+	//get online transaction
+	$onlineT = pg_query($connection,"SELECT l.itemname, l.itemcategory, u.firstname, u.lastname, l.itemid FROM itemlist l INNER JOIN record r ON l.itemid = r.itemid INNER JOIN users u ON l.owneremail = u.email WHERE r.bidderid = '".$email."'")
 	or die ('Query failed: '.pg_last_error());
 	
 		if(isset($_POST['itemid']))
@@ -42,6 +45,12 @@
 			{
 
 			}
+		}
+		if(isset($_POST['onlineid']))
+		{
+		$onlineid = $_POST['onlineid'];
+		$_SESSION['onlineid'] = $onlineid;
+		header("Location: /stuff-sharing/bid.php");
 		}
 		
 		if(isset($_POST['updateid']))
@@ -71,6 +80,9 @@
 						<li><a href="additem.php">Add Item</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">
+
+            
+<li><a class="navbar-brand"><?php echo " Your Points: ".$row[2]  ?></a></li>
             <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
           </ul> 
         </div>
@@ -134,7 +146,31 @@
 					</table>
 					</div>
 				</div>
-        <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3><div><p>To be implemented</p></div></div>
+        <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3>
+			<div class="table-responsive">
+					<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						while($row = pg_fetch_row($onlineT)){
+							echo "\t<tr>\n";
+							echo "\t\t<td>$row[0]</td>\n";
+							echo "\t\t<td>$row[1]</td>\n";
+							echo "\t\t<td>$row[2]&nbsp$row[3]</td>\n";													
+							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"onlineid\" value=\"".$row[4]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
+							echo "\t</tr>\n";
+						}											
+					?>
+					</tbody>
+					</table>
+			</div>
+		</div>
         <div class="accordionSection" id="advertisingItems"><h3>Advertisements</h3>				
 					<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
