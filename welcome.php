@@ -27,7 +27,7 @@
 	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
 	or die ('Query failed: '.pg_last_error());
 	//get online transaction
-	$onlineT = pg_query($connection,"SELECT l.itemname, l.itemcategory, u.firstname, u.lastname, l.itemid FROM itemlist l INNER JOIN record r ON l.itemid = r.itemid INNER JOIN users u ON l.owneremail = u.email WHERE r.bidderid = '".$email."'")
+	$onlineT = pg_query($connection,"SELECT l.itemname, l.itemcategory, u.firstname, u.lastname, l.itemid FROM itemlist l INNER JOIN biddinglist b ON l.itemid = b.itemid INNER JOIN users u ON l.owneremail = u.email WHERE b.bidderid = '".$email."'")
 	or die ('Query failed: '.pg_last_error());
 	
 		if(isset($_POST['itemid']))
