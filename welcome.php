@@ -82,7 +82,7 @@
           <ul class="nav navbar-nav navbar-right">
 
             
-<li><a class="navbar-brand"><?php echo " Your Points: ".$row[2]  ?></a></li>
+<li><a class="navbar-brand"><?php echo " User Points: ".$row[2]  ?></a></li>
             <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
           </ul> 
         </div>

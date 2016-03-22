@@ -125,7 +125,7 @@ function update(minbid, userpoint, currentbid) {
 						<li><a href="additem.php">Add Item</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">
-						<li>User Point:<?php echo $info[2];?></li>
+						<li><a class="navbar-brand"><?php echo " User Points: " .$info[2]?></a></li>
             <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
           </ul> 
         </div>
