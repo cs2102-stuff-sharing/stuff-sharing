@@ -18,7 +18,7 @@
 	if(isset($_SESSION['updateid']))
 	{
 		$updateid = pg_escape_string($connection,$_SESSION['updateid']);
-		$updateResult = pg_query($connection,"SELECT u.firstname, u.lastname, u.password, u.dob, u.email 
+		$updateResult = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email 
 		FROM users u WHERE u.email='".$email."'");
 		if(!$updateResult)
 		{
@@ -30,21 +30,31 @@
 			$row = pg_fetch_row($updateResult);
 			$userFName = $row[0];
 			$userLName = $row[1];
-			$userPassword = $row[2];
-			$userDOB = $row[3];			
-			$userEmail = $row[4];
+			$userDOB = $row[2];			
+			$userEmail = $row[3];
 		}
 	}
 
   if(isset($_POST['action']) && $_POST['action'] == "updateid")
   {  
   	$newFName = pg_escape_string($connection,$_POST['userFName']);
-	$newLName = pg_escape_string($connection,$_POST['userLName']);
-	$newPassword = pg_escape_string($connection,$_POST['userPassword']);
-	$newDOB = pg_escape_string($connection,$_POST['userDOB']);
+		$newLName = pg_escape_string($connection,$_POST['userLName']);
+		if (!empty($_POST['userPassword']))
+		{
+			$newPassword = pg_escape_string($connection,$_POST['userPassword']);
+		}
+		$newDOB = pg_escape_string($connection,$_POST['userDOB']);
 	
-  	$updateIDQuery = "UPDATE users SET firstname='".$newFName."', lastname='".$newLName."', password='".$newPassword."', dob='".$newDOB."'
-		WHERE email = '".$userEmail."'";
+		if(isset($newPassword))
+		{
+			$updateIDQuery = "UPDATE users SET firstname='".$newFName."', lastname='".$newLName."', password='".md5($newPassword)."', dob='".$newDOB."'
+			WHERE email = '".$userEmail."'";
+		}
+		else
+		{
+			$updateIDQuery = "UPDATE users SET firstname='".$newFName."', lastname='".$newLName."', dob='".$newDOB."'
+			WHERE email = '".$userEmail."'";			
+		}
 	  $updateIDResult = pg_query($connection, $updateIDQuery);
 
 		if($updateIDResult){
@@ -107,10 +117,10 @@
               <div class="form-group">
                 <input class="form-control" id="user-lname" name="userLName" type="text" placeholder="User LName" value = "<?php echo $userLName;?>">
               </div>
-			  <div class="form-group">
-                <input class="form-control" id="user-password" name="userPassword" type="text" placeholder="User Password" value = "<?php echo $userPassword;?>">
+							<div class="form-group">
+                <input class="form-control" id="user-password" name="userPassword" type="text" placeholder="New Password">
               </div>
-			  <div class="form-group">
+							<div class="form-group">
                 <input class="form-control" id="user-dob" name="userDOB" type="text" placeholder="User DOB" value = "<?php echo $userDOB;?>">
               </div>
 			                

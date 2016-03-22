@@ -24,7 +24,7 @@
 	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint,i.itemId from Advertise a, ItemList i, Users u where 
 	a.itemid = i.itemid and i.owneremail = u.email and i.owneremail <> '".$email."'") or die('Query failed:'.pg_last_error());		
 	//get particulars
-	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.password, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
+	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
 	or die ('Query failed: '.pg_last_error());
 	
 		if(isset($_POST['itemid']))
@@ -113,7 +113,7 @@
 					<table class="table table-striped table-bordered table-list">
 					<thead>
 						<tr>
-						<th>First Name</th> <th>Last Name</th> <th>Password</th> <th>DOB</th> <th>Email</th> 
+						<th>First Name</th> <th>Last Name</th> <th>DOB</th> <th>Email</th> <th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -123,8 +123,7 @@
 							echo "\t\t<td>$row[0]</td>\n";
 							echo "\t\t<td>$row[1]</td>\n";
 							echo "\t\t<td>$row[2]</td>\n";
-							echo "\t\t<td>$row[3]</td>\n";
-							echo "\t\t<td>$row[4]</td>\n";							
+							echo "\t\t<td>$row[3]</td>\n";			
 							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"updateid\" value=\"".$row[4]."\"/>";
 							echo "<button type=\"submit\" class=\"btn btn-success\">Update</button></form></td>\n";
