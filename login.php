@@ -19,17 +19,29 @@
       {
           $email = pg_escape_string($connection,$_POST['email']);
           $password = pg_escape_string($connection,$_POST['password']);
-          $query = "SELECT email FROM users where email='".$email."' and password='".md5($password)."'";
+          $query = "SELECT email, isadmin FROM users where email='".$email."' and password='".md5($password)."'";
           $result = pg_query($connection,$query);
           $numResults = pg_num_rows($result);
+			$row = pg_fetch_row($result);
+			
           if ($numResults < 1)
           {
               $message = "Wrong email or wrong password!";
           }
           else
-          {
-			  header("Location: /stuff-sharing/welcome.php");
-			  $_SESSION['key'] = $email;
+          {		
+		  echo $row[0];
+		  echo $row[1];
+			if($row[1] == 'f')
+			{
+				header("Location: /stuff-sharing/welcome.php");
+				$_SESSION['key'] = $email;
+			}
+			else if($row[1] == 't')
+			{				
+				header("Location: /stuff-sharing/admin.php");
+				$_SESSION['key'] = $email;
+			}
           }
       }
   }
