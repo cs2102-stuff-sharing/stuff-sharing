@@ -22,4 +22,5 @@
 
 	<script src="welcome.js"></script>
 	<script src="myitem.js"></script>
+	<script src="bid.js"></script>
 </head>
