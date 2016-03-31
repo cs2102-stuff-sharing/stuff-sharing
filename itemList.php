@@ -37,7 +37,7 @@
 			<table class="table table-striped table-bordered table-list">
 			<thead>
 			  <tr>
-			    <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th?>
+			    <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th>View details</th>
 			  </tr>
 			</thead>
 			<?php
@@ -47,6 +47,9 @@
 				foreach ($row as $col_value) {
 					echo "\t\t<td>$col_value</td>\n";
 				}
+				echo "\t\t<td><form action=\"itemList.php\" method=\"post\">";
+				echo "<input type=\"hidden\" name=\"go-specific-id\" value=\"".$row[1]."\"/>";
+				echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
 				echo "\t</tr>\n\t</tbody>\n";
 			}
 			?>
