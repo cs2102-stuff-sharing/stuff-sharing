@@ -7,6 +7,10 @@
 	{
 		header("Location: /stuff-sharing/login.php?error=NOT_LOGIN");
 	}
+	elseif(isset($_POST['itemid']))
+	{
+		header("Location: /stuff-sharing/bid.php?id=".$_POST['itemid']);
+	}
 	else
 	{
 		$email = pg_escape_string($connection,$_SESSION['key']);
@@ -48,7 +52,7 @@
 					echo "\t\t<td>$col_value</td>\n";
 				}
 				echo "\t\t<td><form action=\"itemList.php\" method=\"post\">";
-				echo "<input type=\"hidden\" name=\"go-specific-id\" value=\"".$row[1]."\"/>";
+				echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row['itemid']."\"/>";
 				echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
 				echo "\t</tr>\n\t</tbody>\n";
 			}

@@ -8,70 +8,103 @@
 	{
 		header("Location: /stuff-sharing/login.php?error=NOT_LOGIN");
 	}
+	else if(!isset($_GET['id']))
+	{
+		header("Location: /stuff-sharing/error.php?id=a");
+	}
 	else
 	{
 		$email = pg_escape_string($connection,$_SESSION['key']);
 		$query = "SELECT firstName, lastName, userPoint FROM users where email='".$email."'";
 		$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
-		$info = pg_fetch_row($result);
-	}
-	
-	if(isset($_SESSION['biditemid']))
-	{
-		$biditemid = pg_escape_string($connection,$_SESSION['biditemid']);
+		$row = pg_fetch_row($result);
+
+		$biditemid = pg_escape_string($connection,$_GET['id']);
 		$itemresult = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription,a.minimumBidPoint,u.firstname,u.lastname,u.email 
 		FROM ItemList l, Advertise a, Users u WHERE l.itemid = '".$biditemid."' and a.itemid = l.itemid and l.owneremail = u.email");  
-		$biddersresult = pg_query($connection, "SELECT b.bidderId, b.bidAmount, u.firstname, u.lastname FROM BiddingList b, Users u WHERE b.itemId = '".$biditemid."' and u.email = b.bidderId");
-		if(!$itemresult)
+		if(pg_num_rows($itemresult) == 0)
 		{
-			$message = "Something seems to be wrong, please try later";
-		}		
+			header("Location: /stuff-sharing/error.php?id=b");
+		}
 	}
-	
-	if(isset($_POST['bidpoint']))
+	if(isset($_POST['bidform']))
 	{
-		$bidpoint = pg_escape_string($connection,$_POST['bidpoint']);
-		$bidquery = "insert into BiddingList(itemId,bidderId,bidAmount) values('".$biditemid. "','" .$email ."','" .$bidpoint. "')";
-		$bidresult = pg_query($connection,$bidquery) or die('Query failed:'.pg_last_error());
-		$remainpoint = (int)$info[2] - (int)$bidpoint;
-		$deductquery = "update Users set userPoint = '".$remainpoint."' where email = '".$email."'";
-		$deductresult = pg_query($connection,$deductquery) or die('Query failed:'.pg_last_error());
-		if($bidresult and $deductresult)
+		$bidpoint = pg_escape_string($connection, $_POST['bidAmount']);
+		$remainpoint = (int)$row[2] - (int)$bidpoint;
+		if($remainpoint < 0)
 		{
-			//add ad successfully
-			header("Location: /stuff-sharing/bid.php");
+			$message = "You do not have enough bid point";
+		}
+		elseif ($bidpoint < (int)$_POST['minimumbid'])
+		{
+			$message = "Bid must exceed minimum bid";
 		}
 		else
 		{
-			$message = "Something seems to be wrong, please try later";
-		}		
+			$bidquery = "INSERT INTO biddinglist(itemid,bidderId, bidAmount) values (".$biditemid.",'".$email."', ".$bidpoint.")";
+			$bidresult = pg_query($connection,$bidquery) or die('Query failed:'.pg_last_error());
+			$deductquery = "update users set userPoint = '".$remainpoint."' where email = '".$email."'";
+			$deductresult = pg_query($connection,$deductquery) or die('Query failed:'.pg_last_error());
+			if($bidresult and $deductresult)
+			{
+				//add ad successfully
+				header("Location: /stuff-sharing/bid.php?id=".$biditemid."&msg=ADD_SUCCESS");
+			}
+			else
+			{
+				header("Location: /stuff-sharing/error/php?id=c");
+			}
+		}
 	}
-	
-	if(isset($_POST['updatepoint']))
+	if(isset($_POST['updatebidform']))
 	{
-		$updatepoint = pg_escape_string($connection,$_POST['updatepoint']);
-		$updatepointnum = (int)$updatepoint;
-		$recoverpoint = pg_escape_string($connection,$_POST['recoverpoint']);
-		if($updatepointnum == 0)
+		
+		$updatedpoint = (int) pg_escape_string($connection,$_POST['bidAmount']);
+		$originalpoint = (int) pg_fetch_array(pg_query($connection,"SELECT b.bidAmount FROM biddinglist b WHERE b.bidderId ='".$_SESSION['key']."' and b.itemId = ".$biditemid))[0];
+		$deductpoint = $updatedpoint - $originalpoint;
+
+		if($updatedpoint == 0)
 		{
 			$retractbidquery = "DELETE FROM BiddingList WHERE bidderId = '" .$email ."' and itemId = '" .$biditemid ."'";
-			$updatebidresult = pg_query($connection,$retractbidquery);
+			$retractbidresult = pg_query($connection,$retractbidquery);
+			$regainPoints = $row[2] + $originalpoint;
+			$updateuserpointquery = "UPDATE users SET userPoint = '" .$regainPoints ."' where email = '" .$email ."'";	
+			$retrieveuserpointresult = pg_query($connection,$updateuserpointquery);
+			if($retractbidresult && $retrieveuserpointresult)
+			{
+				header("Location: /stuff-sharing/bid.php?id=".$biditemid."&msg=RT_SUCCESS");
+
+			}
+			else
+			{
+				header("Location: /stuff-sharing/error.php");
+			}
+		}
+		elseif($row[2] - $deductpoint >= 0)
+		{
+			$updateduserpoint = $row[2] - $deductpoint;
+			$updateuserpointquery = "update users set userPoint = " .$updateduserpoint ." where email = '" .$email ."'";
+			$updatepointresult = pg_query($connection,$updateuserpointquery);
+			$updatebidpointquery = "update biddinglist set bidAmount = ".$updatedpoint ."where bidderId = '" .$email ."' and itemId = '" .$biditemid ."'";
+			$updatebidresult = pg_query($connection,$updatebidpointquery);
+			if($updatepointresult)
+			{
+				echo "<script>alert('user updated')</script>";
+			}
+			if($updatebidresult)
+			{
+				//modify bid successfully
+				echo "<script>alert('".$updateduserpoint."')</script>";
+				header("Location: /stuff-sharing/bid.php?id=".$biditemid."&msg=UPD_SUCCESS");
+			}
+			else
+			{
+				header("Location: /stuff-sharing/error.php?id=d");
+			}
 		}
 		else
 		{
-			$updatebidquery = "update BiddingList set bidAmount = '" .$updatepoint ."' where bidderId = '" .$email ."' and itemId = '" .$biditemid ."'";
-			$updatebidresult = pg_query($connection,$updatebidquery);
-		}
-		$updatepointquery = "update Users set userPoint = '".$recoverpoint."' where email = '".$email."'";
-		$updatepointresult = pg_query($connection,$updatepointquery);
-		if($updatebidresult and $updatepointresult)
-		{
-			//modify bid successfully
-			header("Location: /stuff-sharing/bid.php");
-		}
-		else
-		{
-			$message = "Something seems to be wrong, please try later";
+			$message = "You do not have enough bid points";
 		}
 	}
 ?>
@@ -85,10 +118,31 @@
     <div class="col-md-8 col-md-offset-2">
 		  <div class="panel panel-default">
 			  <div class="panel-heading">
-          <h3 class="panel-title">Item Info</h3>
+          <h3 class="panel-title">Item row</h3>
         </div>
 				<div class="panel-body">				
 				<?php
+					if(isset($_GET['msg']))
+					{
+						if($_GET['msg'] == ADD_SUCCESS)
+						{
+							echo '<div class="alert alert-success" role="alert">
+										<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+										<span class="sr-only">Success:</span>Bid entered successfully!</div>';
+						}
+						elseif($_GET['msg'] == UPD_SUCCESS)
+						{
+							echo '<div class="alert alert-success" role="alert">
+										<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+										<span class="sr-only">Success:</span>Bid updated successfully!</div>';
+						}
+						elseif($_GET['msg'] == RT_SUCCESS)
+						{
+							echo '<div class="alert alert-success" role="alert">
+										<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+										<span class="sr-only">Success:</span>Bid retracted successfully!</div>';
+						}
+					}
 					if(isset($message))
 					{
 						echo '<div class="alert alert-danger" role="alert">
@@ -97,7 +151,7 @@
 										$message .
 									'</div>';
 					}
-        ?>
+        		?>
 				<?php
 				$row = pg_fetch_row($itemresult);
 				echo "<p>Item Name: ".$row[0]."</p>";
@@ -111,58 +165,32 @@
 				?>
 				</div>
 			</div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Bidder List</h3>
-        </div>
-        <div class="panel-body">
-		  <div class="table-responsive">
-			<table class="table table-striped table-bordered table-list">
-			<thead>
-			  <tr>
-			    <th>Bidder Name</th> <th>Bidder Email</th> <th>Bid Point</th> <th>Action</th>
-			  </tr>
-			</thead>
-			<tbody>
-			<?php
-			while($row = pg_fetch_row($biddersresult)){
-				echo "\t<tr>\n";
-				echo "\t\t<td>".$row[2]." ".$row[3]."</td>\n";
-				echo "\t\t<td>".$row[0]."</td>\n";
-				echo "\t\t<td>".$row[1]."</td>\n";
-				if ($row[0] == $email)
-				{
-					echo "\t\t<td>";
-					echo "<form id=\"updateform\" action=\"bid.php\" method=\"post\">";
-					echo "<input id=\"updatepoint\" type=\"hidden\" name=\"updatepoint\"/>";
-					echo "<input id=\"recoverpoint\" type=\"hidden\" name=\"recoverpoint\"/>";
-					echo "<button onclick=\"update('".$minbid."', '".$info[2]."', '".$row[1]."')\" class=\"btn btn-success\">update</button></form>\n";
-					echo "</td>\n";
-				}
-				else
-				{
-					echo "\t\t<td></td>\n";
-				}
-				echo "\t</tr>\n";
-			}
-			?>
-			</tbody>
-		  </table>
-		  </div>
-	    </div>
 		<div class="panel-footer">
 		<?php
-				$selfresult = pg_query($connection,"SELECT count(*) FROM BiddingList b WHERE b.bidderId = '".$email."' and b.itemId = '".$biditemid."'");
-				$isselfin = pg_fetch_row($selfresult)[0];
-				if($isselfin == 0)
+				$isOwner = pg_query($connection,"SELECT u.email FROM users u ,itemList l WHERE l.itemId = '".$biditemid."' and u.email = l.owneremail and u.email = '".$_SESSION['key']."'");
+				$previousBidAmount = pg_query($connection,"SELECT b.bidAmount FROM biddinglist b WHERE b.bidderId ='".$_SESSION['key']."' and b.itemId = ".$biditemid);
+				if(pg_num_rows($isOwner) == 0)
 				{
-				echo "<form id=\"bidform\" action=\"bid.php\" method=\"post\">";
-				echo "<input id=\"bidpoint\" type=\"hidden\" name=\"bidpoint\"/>";
-				echo "<button onclick=\"addBid('".$minbid."', '".$info[2]."')\" class=\"btn btn-success\">add bid</button></form>\n";
+					if(pg_num_rows($previousBidAmount) != 0)
+					{
+						echo "You have previously bidded ".pg_fetch_array($previousBidAmount)[0]." points.";
+						echo "<form id=\"updatebidform\" action=\"bid.php?id=".$biditemid."\" method=\"post\">";
+						echo "<input id=\"updatebidform\" type=\"hidden\" name=\"updatebidform\"/>";
+						echo "<input id=\"bidAmount\" name=\"bidAmount\" autofocus></input>";
+						echo "<button class=\"btn btn-success\">Modify bid</button></form> </p>";
+					}
+					else
+					{
+						echo "<form id=\"bidform\" action=\"bid.php?id=".$biditemid."\" method=\"post\">";
+						echo "<input id=\"bidform\" type=\"hidden\" name=\"bidform\"/>";
+						echo "<input id=\"minimumbid\" type=\"hidden\" name=\"minimumbid\" value=\"".$row[4]."\">";
+						echo "<input id=\"bidAmount\" name=\"bidAmount\" autofocus></input>";
+						echo "<button class=\"btn btn-success\">Bid</button></form>\n";
+					}
 				}
 				else
 				{
-					echo "You have already bidded for the item";
+					echo "You cannot bid because you are the owner";
 				}
 		?>
 		</div>
