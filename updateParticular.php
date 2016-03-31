@@ -10,7 +10,7 @@
   else
   {
 	$email = pg_escape_string($connection,$_SESSION['key']);
-    $query = "SELECT firstname, lastname FROM users where email='".$email."'";
+    $query = "SELECT firstname, lastname, userpoint FROM users where email='".$email."'";
     $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
     $row = pg_fetch_row($result);
   }
@@ -18,7 +18,7 @@
 	if(isset($_SESSION['updateid']))
 	{
 		$updateid = pg_escape_string($connection,$_SESSION['updateid']);
-		$updateResult = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email 
+		$updateResult = pg_query($connection,"SELECT u.firstname, u.lastname, u.userpoint, u.dob, u.email 
 		FROM users u WHERE u.email='".$email."'");
 		if(!$updateResult)
 		{
@@ -30,8 +30,8 @@
 			$row = pg_fetch_row($updateResult);
 			$userFName = $row[0];
 			$userLName = $row[1];
-			$userDOB = $row[2];			
-			$userEmail = $row[3];
+			$userDOB = $row[3];			
+			$userEmail = $row[4];
 		}
 	}
 
@@ -74,22 +74,9 @@
 ?>
 
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/stuff-sharing/welcome.php"><?php echo $row[0]. " " .$row[1] ?></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-					<ul class="nav navbar-nav">
-						<li><a href="myitem.php">My Items</a></li>
-						<li><a href="additem.php">Add Item</a></li>
-					</ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
-          </ul> 
-        </div>
-      </div>
-    </nav>
+    <?php
+      include('navbar.php');
+    ?>
 
 <div class="container">
   <div class="row">

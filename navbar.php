@@ -9,11 +9,12 @@
 						<li><a href="additem.php">Add Item</a></li>
 						<li><a href="itemList.php">Explore</a></li>
 					</ul>
-          <ul class="nav navbar-nav navbar-right">
-
-            
-<li><a class="navbar-brand"><?php echo " User Points: ".$row[2]  ?></a></li>
-            <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
+          <ul class="nav navbar-nav navbar-right">  
+          <li><a class="navbar-brand"><?php echo " User Points: ".$row[2]  ?></a></li>
+          <li><a href="/stuff-sharing/updateParticular.php/">
+            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span></a>
+          </li>
+          <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
           </ul> 
         </div>
       </div>

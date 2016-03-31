@@ -103,32 +103,6 @@
     </div>
 
     <div class="container">
-	<div class="accordionSection" id="updateParticulars"><h3>Update Particulars</h3>				
-					<div class="table-responsive">
-					<table class="table table-striped table-bordered table-list">
-					<thead>
-						<tr>
-						<th>First Name</th> <th>Last Name</th> <th>DOB</th> <th>Email</th> <th></th>
-						</tr>
-					</thead>
-					<tbody>
-					<?php
-						while($row = pg_fetch_row($particulars)){
-							echo "\t<tr>\n";
-							echo "\t\t<td>$row[0]</td>\n";
-							echo "\t\t<td>$row[1]</td>\n";
-							echo "\t\t<td>$row[2]</td>\n";
-							echo "\t\t<td>$row[3]</td>\n";			
-							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
-							echo "<input type=\"hidden\" name=\"updateid\" value=\"".$row[4]."\"/>";
-							echo "<button type=\"submit\" class=\"btn btn-success\">Update</button></form></td>\n";
-							echo "\t</tr>\n";
-						}											
-					?>
-					</tbody>
-					</table>
-					</div>
-				</div>
         <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3>
 			<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
