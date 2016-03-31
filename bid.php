@@ -114,23 +114,9 @@ function update(minbid, userpoint, currentbid) {
 	}
 ?>
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/stuff-sharing/welcome.php"><?php echo $info[0]. " " .$info[1] ?></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-					<ul class="nav navbar-nav">
-						<li><a href="myitem.php">My Items</a></li>
-						<li><a href="additem.php">Add Item</a></li>
-					</ul>
-          <ul class="nav navbar-nav navbar-right">
-						<li><a class="navbar-brand"><?php echo " User Points: " .$info[2]?></a></li>
-            <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
-          </ul> 
-        </div>
-      </div>
-    </nav>
+    <?php
+      include('navbar.php');
+    ?>
 
 <div class="container">
   <div class="row">

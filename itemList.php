@@ -10,26 +10,20 @@
 	else
 	{
 		$email = pg_escape_string($connection,$_SESSION['key']);
-		$query = "SELECT firstName, lastName FROM users where email='".$email."'";
+		$query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
 		$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
-		$info = pg_fetch_row($result);
+        $row = pg_fetch_row($result);
 	}
 
 	$itemresult = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l, Advertise a WHERE l.itemId = a.itemId ORDER BY itemName ASC");
+	//get particulars
+	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
+	or die ('Query failed: '.pg_last_error());
 ?>
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/stuff-sharing/welcome.php"><?php echo $info[0]. " " .$info[1] ?></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
-          </ul> 
-        </div>
-      </div>
-    </nav>
+    <?php
+      include('navbar.php');
+    ?>
 
 <div class="container">
   <div class="row">
