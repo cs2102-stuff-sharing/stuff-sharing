@@ -21,8 +21,14 @@
     $email = pg_escape_string($connection,$_SESSION['key']);
     $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
 	//get advertised items
-	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemCategory,u.firstName,u.lastName,a.minimumBidPoint,i.itemId from Advertise a, ItemList i, Users u where 
-	a.itemid = i.itemid and i.owneremail = u.email and i.owneremail <> '".$email."'") or die('Query failed:'.pg_last_error());		
+	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
+		FROM Advertise a, ItemList i, BiddingList b1, BiddingList b2 WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' 
+		AND b1.itemid = i.itemid AND b2.itemid = i.itemid AND b2.bidAmount >= ALL(SELECT bidAmount from BiddingList WHERE itemid = i.itemid) 
+		GROUP BY i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,b2.bidAmount") 
+		or die('Query failed:'.pg_last_error());
+		$adwithoutbid = pg_query($connection, "SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint FROM Advertise a, ItemList i 
+		WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' AND i.itemId NOT IN (SELECT itemId FROM BiddingList)")
+		or die('Query failed:'.pg_last_error());
 	//get particulars
 	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
 	or die ('Query failed: '.pg_last_error());
@@ -133,7 +139,7 @@
 					<table class="table table-striped table-bordered table-list">
 					<thead>
 						<tr>
-						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th> <th></th>
+						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th> <th>numberOfBidders</th> <th>highestBiddingPoint</th> <th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -142,13 +148,28 @@
 							echo "\t<tr>\n";
 							echo "\t\t<td>$row[0]</td>\n";
 							echo "\t\t<td>$row[1]</td>\n";
-							echo "\t\t<td>$row[2] ".$row[3]."</td>\n";
+							echo "\t\t<td>$row[2]</td>\n";
+							echo "\t\t<td>$row[3]</td>\n";
 							echo "\t\t<td>$row[4]</td>\n";
-							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
-							echo "<input type=\"hidden\" name=\"biditemid\" value=\"".$row[5]."\"/>";
-							echo "<button type=\"submit\" class=\"btn btn-success\">go bid</button></form></td>\n";
+							echo "\t\t<td>$row[5]</td>\n";
+							echo "\t\t<td><form action=\"myitem.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"biditemid\" value=\"".$row[1]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">go manage</button></form></td>\n";
 							echo "\t</tr>\n";
 						}
+						while($row = pg_fetch_row($adwithoutbid)){
+							echo "\t<tr>\n";
+							echo "\t\t<td>$row[0]</td>\n";
+							echo "\t\t<td>$row[1]</td>\n";
+							echo "\t\t<td>$row[2]</td>\n";
+							echo "\t\t<td>$row[3]</td>\n";
+							echo "\t\t<td>0</td>\n";
+							echo "\t\t<td>N/A</td>\n";
+							echo "\t\t<td><form action=\"myitem.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"biditemid\" value=\"".$row[1]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">go manage</button></form></td>\n";
+							echo "\t</tr>\n";
+						}						
 					?>
 					</tbody>
 					</table>
