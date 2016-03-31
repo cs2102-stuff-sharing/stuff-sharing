@@ -78,6 +78,7 @@
 					<ul class="nav navbar-nav">
 						<li><a href="myitem.php">My Items</a></li>
 						<li><a href="additem.php">Add Item</a></li>
+						<li><a href="itemList.php">Explore</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">
 
