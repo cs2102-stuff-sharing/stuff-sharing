@@ -8,6 +8,7 @@
 						<li><a href="myitem.php">My Items</a></li>
 						<li><a href="additem.php">Add Item</a></li>
 						<li><a href="itemList.php">Explore</a></li>
+            <li><a href="searchItem.php">Search</a></li>
 					</ul>
           <ul class="nav navbar-nav navbar-right">  
           <li><a class="navbar-brand"><?php echo " User Points: ".$row[2]  ?></a></li>
