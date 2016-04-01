@@ -20,7 +20,7 @@
 		$biditemid = pg_escape_string($connection,$_SESSION['biditemid']);
 		$itemresult = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription,a.minimumBidPoint,u.firstname,u.lastname,u.email 
 		FROM ItemList l, Advertise a, Users u WHERE l.itemid = '".$biditemid."' and a.itemid = l.itemid and l.owneremail = u.email");  
-		$biddersresult = pg_query($connection, "SELECT b.bidderId, b.bidAmount, u.firstname, u.lastname FROM BiddingList b, Users u WHERE b.itemId = '".$biditemid."' and u.email = b.bidderId");
+		$biddersresult = pg_query($connection, "SELECT b.bidderId, b.bidAmount, u.firstname, u.lastname, u.blackListCount FROM BiddingList b, Users u WHERE b.itemId = '".$biditemid."' and u.email = b.bidderId");
 		if(!$itemresult)
 		{
 			header("Location: /stuff-sharing/error.php");
@@ -130,7 +130,7 @@
 			<table class="table table-striped table-bordered table-list">
 			<thead>
 			  <tr>
-			    <th>Bidder Name</th> <th>Bidder Email</th> <th>Bid Point</th> <th>Action</th>
+			    <th>Bidder Name</th> <th>Bidder Email</th> <th>BlackList Count</th> <th>Bid Point</th> <th>Action</th>
 			  </tr>
 			</thead>
 			<tbody>
@@ -139,6 +139,7 @@
 				echo "\t<tr>\n";
 				echo "\t\t<td>".$row[2]." ".$row[3]."</td>\n";
 				echo "\t\t<td>".$row[0]."</td>\n";
+				echo "\t\t<td>".$row[4]."</td>\n";
 				echo "\t\t<td>".$row[1]."</td>\n";
 				
 				echo "\t\t<td>";
