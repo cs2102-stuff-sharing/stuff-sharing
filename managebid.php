@@ -23,7 +23,7 @@
 		$biddersresult = pg_query($connection, "SELECT b.bidderId, b.bidAmount, u.firstname, u.lastname FROM BiddingList b, Users u WHERE b.itemId = '".$biditemid."' and u.email = b.bidderId");
 		if(!$itemresult)
 		{
-			$message = "Something seems to be wrong, please try later";
+			header("Location: /stuff-sharing/error.php");
 		}		
 	}
 		
@@ -59,7 +59,7 @@
 		$addrecordresult = pg_query($connection,$addrecordquery);	
 		if(!($updatepointresult and $fetchpointresult and $recoverpointresult and $deletebidresult and $deleteadresult and $addrecordresult))
 		{
-			$message = "Something seems to be wrong, please try later";
+			header("Location: /stuff-sharing/error.php");
 		}
 		else
 		{
@@ -91,7 +91,7 @@
 		$deleteadresult = pg_query($connection,$deleteadquery);
 		if(!($fetchpointresult && $recoverpointresult && $deletebidresult && $deleteadresult))
 		{
-			$message = "Something seems to be wrong, please try later";
+			header("Location: /stuff-sharing/error.php");
 		}
 		else
 		{
@@ -111,17 +111,7 @@
 			  <div class="panel-heading">
           <h3 class="panel-title">Item Info</h3>
         </div>
-				<div class="panel-body">				
-				<?php
-					if(isset($message))
-					{
-						echo '<div class="alert alert-danger" role="alert">
-										<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-										<span class="sr-only">Error:</span>' . 
-										$message .
-									'</div>';
-					}
-        ?>
+				<div class="panel-body">
 				<?php
 				$row = pg_fetch_row($itemresult);
 				echo "<p>Item Name: ".$row[0]."</p>";
