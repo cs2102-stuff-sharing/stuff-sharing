@@ -31,9 +31,6 @@
 	{
 		$winnerid = pg_escape_string($connection,$_POST['winnerid']);
 		$winpoint = pg_escape_string($connection,$_POST['winpoint']);
-		$updatepoint = (int)$info[2] + (int)$winpoint;
-		$updatepointquery = "update Users set userPoint = '".$updatepoint."' where email = '".$email."'";
-		$updatepointresult = pg_query($connection,$updatepointquery);
 		while($row = pg_fetch_row($biddersresult)){		
 			$amount = (int)$row[1];
 			$fetchpointquery = "select userpoint from users where email = '".$row[0]."'";
@@ -57,7 +54,7 @@
 		$addrecordquery = "insert into Record(itemId,bidderId,bidAmount) values ('"
   		. $biditemid ."','" . $winnerid ."', '" .$winpoint."')";
 		$addrecordresult = pg_query($connection,$addrecordquery);	
-		if(!($updatepointresult and $fetchpointresult and $recoverpointresult and $deletebidresult and $deleteadresult and $addrecordresult))
+		if(!($fetchpointresult and $recoverpointresult and $deletebidresult and $deleteadresult and $addrecordresult))
 		{
 			header("Location: /stuff-sharing/error.php");
 		}
