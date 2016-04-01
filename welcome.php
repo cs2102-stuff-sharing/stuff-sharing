@@ -19,7 +19,6 @@
 
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
-    $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
 	//get advertised items
 	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
 		FROM Advertise a, ItemList i, BiddingList b1, BiddingList b2 WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' 
@@ -32,8 +31,6 @@
 	//get particulars
 	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
 	or die ('Query failed: '.pg_last_error());
-	//get online transaction
-	$onlineT = pg_query($connection,"SELECT l.itemname, l.itemcategory, u.firstname, u.lastname, l.itemid FROM itemlist l INNER JOIN biddinglist b ON l.itemid = b.itemid INNER JOIN users u ON l.owneremail = u.email WHERE b.bidderid = '".$email."'");
 	//get borrowing status
 	$borrowStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.bidderid = '".$email."' AND r.itemid = i.itemid AND i.owneremail = u.email");
 	//get lending status
