@@ -33,8 +33,11 @@
 	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
 	or die ('Query failed: '.pg_last_error());
 	//get online transaction
-	$onlineT = pg_query($connection,"SELECT l.itemname, l.itemcategory, u.firstname, u.lastname, l.itemid FROM itemlist l INNER JOIN biddinglist b ON l.itemid = b.itemid INNER JOIN users u ON l.owneremail = u.email WHERE b.bidderid = '".$email."'")
-	or die ('Query failed: '.pg_last_error());
+	$onlineT = pg_query($connection,"SELECT l.itemname, l.itemcategory, u.firstname, u.lastname, l.itemid FROM itemlist l INNER JOIN biddinglist b ON l.itemid = b.itemid INNER JOIN users u ON l.owneremail = u.email WHERE b.bidderid = '".$email."'");
+	//get borrowing status
+	$borrowStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.bidderid = '".$email."' AND r.itemid = i.itemid AND i.owneremail = u.email");
+	//get lending status
+	$lendingStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.itemid = i.itemid AND i.owneremail ='".$email."' AND u.email = r.bidderid");
 	
 		if(isset($_POST['itemid']))
 		{
@@ -109,25 +112,55 @@
     </div>
 
     <div class="container">
-        <div class="accordionSection" id="ongoingTransaction"><h3>Ongoing Transactions</h3>
+    	 <div class="accordionSection" id="borrowingStatus"><h3>Borrowing Status</h3>
 			<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
 					<thead>
 						<tr>
-						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th>
+						<th>itemId</th> <th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>Your Bid amount</th>
 						</tr>
 					</thead>
 					<tbody>
 					<?php
-						while($row = pg_fetch_row($onlineT)){
+						while($row = pg_fetch_row($borrowStatus)){
 							echo "\t<tr>\n";
 							echo "\t\t<td>$row[0]</td>\n";
 							echo "\t\t<td>$row[1]</td>\n";
-							echo "\t\t<td>$row[2]&nbsp$row[3]</td>\n";													
-							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
+							echo "\t\t<td>$row[2]</td>\n";
+							echo "\t\t<td>$row[3]&nbsp$row[4]</td>\n";
+							echo "\t\t<td>$row[5]</td>\n";
+							/*echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"onlineid\" value=\"".$row[4]."\"/>";
 							echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
-							echo "\t</tr>\n";
+							echo "\t</tr>\n";*/
+						}											
+					?>
+					</tbody>
+					</table>
+			</div>
+		</div>
+
+		 <div class="accordionSection" id="lendingStatus"><h3>Lending Status</h3>
+			<div class="table-responsive">
+					<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+						<th>itemId</th> <th>itemName</th> <th>itemCategory</th> <th>Borrower Name</th> <th>Successful Bid amount</th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						while($row = pg_fetch_row($lendingStatus)){
+							echo "\t<tr>\n";
+							echo "\t\t<td>$row[0]</td>\n";
+							echo "\t\t<td>$row[1]</td>\n";
+							echo "\t\t<td>$row[2]</td>\n";
+							echo "\t\t<td>$row[3]&nbsp$row[4]</td>\n";
+							echo "\t\t<td>$row[5]</td>\n";
+							/*echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"onlineid\" value=\"".$row[4]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
+							echo "\t</tr>\n";*/
 						}											
 					?>
 					</tbody>
