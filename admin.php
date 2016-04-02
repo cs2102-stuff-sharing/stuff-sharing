@@ -44,6 +44,42 @@
 	header("Location: /stuff-sharing/admin_edititem.php");
 	}
 	
+	if(isset($_POST['deleteitemid']))
+	{
+	$deleteitemid = $_POST['deleteitemid'];
+	try
+	{
+		$deleteResult = pg_query($connection, "DELETE FROM itemlist WHERE itemid = '".$deleteitemid."';");
+		if($deleteResult)
+		{
+			echo ("
+			<div class=\"alert alert-info\">
+				<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
+				Item Deleted!
+			</div>
+			");
+		}
+		else
+		{
+			echo ("
+			<div class=\"alert alert-info\">
+			<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
+			Please remove the item from advertising first!
+			</div>
+			");
+		}
+	}
+	catch(Exception $e)
+	{
+		echo ("
+		<div class=\"alert alert-info\">
+			<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
+			Please remove the item from advertising first!
+		</div>
+        ");
+	}
+	}
+	
 	if(isset($_POST['deletebidid']))
 	{
 		$deletebidid = $_POST['deletebidid'];
@@ -149,7 +185,10 @@
 								echo "\t\t<td>$row[5]</td>\n";								
 								echo "\t\t<td><form action=\"admin.php\" method=\"post\">";
 								echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[0]."\"/>";
-								echo "<button type=\"submit\" class=\"btn btn-success\">Edit</button></form></td>\n";
+								echo "<button type=\"submit\" class=\"btn btn-success\">Edit</button></form></td>\n";								
+								echo "\t\t<td><form action=\"admin.php\" method=\"post\">";
+								echo "<input type=\"hidden\" name=\"deleteitemid\" value=\"".$row[0]."\"/>";
+								echo "<button type=\"submit\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button></form></td>\n";								
 								echo "\t</tr>\n";
 							}											
 						?>
