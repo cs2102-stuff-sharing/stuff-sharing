@@ -9,13 +9,11 @@ CREATE table Users (
     blackListCount INT DEFAULT 0
 );
 
-/* When a user deletes an item, it still preserves in the database so that the notifications can still be sent properly */
 CREATE table ItemList (
     itemId SERIAL PRIMARY KEY,
     ownerEmail VARCHAR(256) REFERENCES Users(email),
     itemName VARCHAR(64),
     itemDescription VARCHAR(256),
-    itemDeleted BOOLEAN DEFAULT FALSE,
     itemCategory VARCHAR(64) 
 );
 
@@ -38,13 +36,6 @@ CREATE TABLE Record (
     bidderId VARCHAR(256) REFERENCES Users(email),
     bidAmount INT CHECK (bidAmount > 0),
     PRIMARY KEY (itemId, bidderId)
-);
-
-CREATE TABLE Notifications (
-    receiver VARCHAR(256) REFERENCES Users(email),
-    status VARCHAR(64) NOT NULL,
-    productId SERIAL REFERENCES ItemList(itemId),
-    PRIMARY KEY (receiver, productId)
 );
 
 /* Add default administrator account, password: 'adminpassword */
