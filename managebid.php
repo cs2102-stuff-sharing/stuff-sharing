@@ -12,7 +12,7 @@
 		$email = pg_escape_string($connection,$_SESSION['key']);
 		$query = "SELECT firstName, lastName, userPoint FROM users where email='".$email."'";
 		$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
-		$info = pg_fetch_row($result);
+		$row = pg_fetch_row($result);
 	}
 	
 	if(isset($_SESSION['biditemid']))
