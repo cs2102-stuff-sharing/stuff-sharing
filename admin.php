@@ -22,13 +22,22 @@
 	$usersResult = pg_query($connection,"SELECT * from Users;") 
 	or die ('Query failed: '.pg_last_error());
 	
-	
+	//get all items
+	$itemResult = pg_query($connection,"SELECT * from itemlist;") 
+	or die ('Query failed: '.pg_last_error());
 		
 	if(isset($_POST['userid']))
 	{
 	$userid = $_POST['userid'];
 	$_SESSION['userid'] = $userid;
 	header("Location: /stuff-sharing/edituser.php");
+	}
+	
+	if(isset($_POST['itemid']))
+	{
+	$itemid = $_POST['itemid'];
+	$_SESSION['itemid'] = $itemid;
+	header("Location: /stuff-sharing/admin_edititem.php");
 	}
 		
 		
@@ -103,6 +112,34 @@
 								echo "\t\t<td>$row[7]</td>\n";	
 								echo "\t\t<td><form action=\"admin.php\" method=\"post\">";
 								echo "<input type=\"hidden\" name=\"userid\" value=\"".$row[4]."\"/>";
+								echo "<button type=\"submit\" class=\"btn btn-success\">Edit</button></form></td>\n";
+								echo "\t</tr>\n";
+							}											
+						?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="accordionSection" id="editItem"><h3>Edit Items</h3>				
+			<div class="table-responsive">
+				<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+							<th>Item ID</th> <th>Owner Email</th> <th>Item Name</th> <th>Item Description</th> <th>Item Deleted</th><th>Item Category</th> <th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+							while($row = pg_fetch_row($itemResult)){
+								echo "\t<tr>\n";
+								echo "\t\t<td>$row[0]</td>\n";
+								echo "\t\t<td>$row[1]</td>\n";
+								echo "\t\t<td>$row[2]</td>\n";
+								echo "\t\t<td>$row[3]</td>\n";
+								echo "\t\t<td>$row[4]</td>\n";									
+								echo "\t\t<td>$row[5]</td>\n";								
+								echo "\t\t<td><form action=\"admin.php\" method=\"post\">";
+								echo "<input type=\"hidden\" name=\"itemid\" value=\"".$row[0]."\"/>";
 								echo "<button type=\"submit\" class=\"btn btn-success\">Edit</button></form></td>\n";
 								echo "\t</tr>\n";
 							}											

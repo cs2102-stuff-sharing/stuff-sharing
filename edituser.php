@@ -81,7 +81,7 @@
 
 <body>
     <?php
-      include('navbar.php');
+      include('admin_navbar.php');
     ?>
 
 <div class="container">
