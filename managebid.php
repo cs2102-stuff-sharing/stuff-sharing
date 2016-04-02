@@ -60,7 +60,7 @@
 		}
 		else
 		{
-			header("Location: /stuff-sharing/welcome.php");			
+			header("Location: /stuff-sharing/welcome.php?msg=BID_MANAGE_SUCCESS");			
 		}
 	}
 	
@@ -92,7 +92,7 @@
 		}
 		else
 		{
-			header("Location: /stuff-sharing/welcome.php");
+			header("Location: /stuff-sharing/welcome.php?BID_CLOSE_SUCCESS");
 		}
 	}
 ?>

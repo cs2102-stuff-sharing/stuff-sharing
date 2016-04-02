@@ -78,6 +78,7 @@
 					$deleterecordresult = pg_query($connection,$deleterecordquery);
 				}
 			}
+			$msg = "LENDING_CLOSED";
 		}
 
 		if(isset($_POST['lendingDone']))
@@ -110,6 +111,7 @@
 			$query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
         	$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
         	$row = pg_fetch_row($result);
+        	$msg = "LENDING_DONE";
 		}
 		if(isset($_POST['lendingGiveUp']))
 		{
@@ -142,6 +144,7 @@
 			$query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
         	$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
         	$row = pg_fetch_row($result);
+        	$msg = "LENDING_GIVE_UP";
 		}
 	//get advertised items
 	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
@@ -184,6 +187,49 @@
   <strong>Success!</strong> Item advertised!
 </div></div>";
         }
+        else if ($_GET['msg'] = "BID_MANAGE_SUCCESS")
+        {
+        	 echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> The deal is initiated successfully!
+</div></div>";
+        }
+        else if ($_GET['msg'] = "BID_CLOSE_SUCCESS")
+        {
+        	 echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> You have successfuly closed the advertisment!
+</div></div>";
+        }
+    }
+    elseif(isset($msg))
+    {
+    	if($msg == "LENDING_CLOSED")
+    	{
+    		echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> You have successfuly closed the transaction!
+</div></div>";
+    	}
+    	elseif($msg == "LENDING_DONE")
+    	{
+    		echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> You have successfuly finish the transaction!
+</div></div>";
+    	}
+    	elseif($msg == "LENDING_GIVE_UP")
+    	{
+    		echo "<div class='container'>
+            <div class='alert alert-success alert-dismissible' role='alert'>
+  <button type='button' class='close' data-dismiss='alert' aria-label='Close'><span aria-hidden='true'>&times;</span></button>
+  <strong>Success!</strong> You have given up the transaction!
+</div></div>";
+    	}
     }
     ?>
 
