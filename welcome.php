@@ -19,24 +19,8 @@
 
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
-	//get advertised items
-	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
-		FROM Advertise a, ItemList i, BiddingList b1, BiddingList b2 WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' 
-		AND b1.itemid = i.itemid AND b2.itemid = i.itemid AND b2.bidAmount >= ALL(SELECT bidAmount from BiddingList WHERE itemid = i.itemid) 
-		GROUP BY i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,b2.bidAmount") 
-		or die('Query failed:'.pg_last_error());
-		$adwithoutbid = pg_query($connection, "SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint FROM Advertise a, ItemList i 
-		WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' AND i.itemId NOT IN (SELECT itemId FROM BiddingList)")
-		or die('Query failed:'.pg_last_error());
-	//get particulars
-	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
-	or die ('Query failed: '.pg_last_error());
-	//get borrowing status
-	$borrowStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.bidderid = '".$email."' AND r.itemid = i.itemid AND i.owneremail = u.email");
-	//get lending status
-	$lendingStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.itemid = i.itemid AND i.owneremail ='".$email."' AND u.email = r.bidderid");
-	
-		if(isset($_POST['itemid']))
+
+    if(isset($_POST['itemid']))
 		{
 		$itemid = pg_escape_string($connection,$_POST['itemid']);
 		$minbid = pg_escape_string($connection,$_POST['minbid']);
@@ -72,6 +56,109 @@
 		$_SESSION['biditemid'] = $biditemid;
 		header("Location: /stuff-sharing/bid.php");
 		}
+		
+		if(isset($_POST['lendingClose']))
+		{
+			$lendingCloseId = $_POST['lendingClose'];
+			$itemResult = pg_query($connection, "SELECT u.email, r.bidAmount FROM users u, record r WHERE r.itemId =".$lendingCloseId." AND u.email = r.bidderid");
+			$item = pg_fetch_row($itemResult);
+			$amount = (int)$item[1];
+			$fetchpointquery = "select userpoint from users where email = '".$item[0]."'";
+			$fetchpointresult = pg_query($connection,$fetchpointquery);
+			if($fetchpointresult)
+			{
+				$pointrow = pg_fetch_row($fetchpointresult);
+				$currentpoint = (int)$pointrow[0];
+				$recoveredpoint = $amount + $currentpoint;
+				$recoverpointquery = "update Users set userPoint = '" .$recoveredpoint."' where email = '".$item[0]."'";
+				$recoverpointresult = pg_query($connection,$recoverpointquery);
+				if($recoverpointresult)
+				{
+					$deleterecordquery = "DELETE FROM record WHERE bidderId = '".$item[0]."' AND itemId = ".$lendingCloseId;
+					$deleterecordresult = pg_query($connection,$deleterecordquery);
+				}
+			}
+		}
+
+		if(isset($_POST['lendingDone']))
+		{
+			$lendingDoneId = $_POST['lendingDone'];
+			$itemResult = pg_query($connection, "SELECT u.email, r.bidAmount FROM users u, record r WHERE r.itemId =".$lendingDoneId." AND u.email = r.bidderid");
+			$item = pg_fetch_row($itemResult);
+			$amount = (int)$item[1];
+			$fetchborrowerpointquery = "select userpoint from users where email = '".$item[0]."'";
+			$fetchborrowerpointresult = pg_query($connection,$fetchborrowerpointquery);
+			if($fetchborrowerpointresult)
+			{
+				$pointrow = pg_fetch_row($fetchborrowerpointresult);
+				$currentpoint = (int)$pointrow[0];
+				$recoveredpoint = (int) ceil($amount*1.5 + $currentpoint);
+				$recoverborrowerpointquery = "update Users set userPoint = '" .$recoveredpoint."' where email = '".$item[0]."'";
+				$fetchuserpointresult = pg_query($connection,"select userpoint from users where email = '".$email."'");
+				$userpointrow = pg_fetch_row($fetchuserpointresult);
+				$awardpoint = (int) ceil($amount*1.5 + $userpointrow[0]);
+				$lenderrewardpointquery = "update Users set userPoint = '" .$awardpoint."' where email = '".$email."'";
+				$recoverborrowerpointresult = pg_query($connection,$recoverborrowerpointquery);
+				$lenderrewardpointresult = pg_query($connection,$lenderrewardpointquery);
+				if($recoverborrowerpointresult && $lenderrewardpointresult)
+				{
+					$deleterecordquery = "DELETE FROM record WHERE bidderId = '".$item[0]."' AND itemId = ".$lendingDoneId;
+					$deleterecordresult = pg_query($connection,$deleterecordquery);
+				}
+			}
+			//Do the query again to update nav bar
+			$query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
+        	$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
+        	$row = pg_fetch_row($result);
+		}
+		if(isset($_POST['lendingGiveUp']))
+		{
+			$lendingGiveUpId = $_POST['lendingGiveUp'];
+			$itemResult = pg_query($connection, "SELECT u.email, r.bidAmount FROM users u, record r WHERE r.itemId =".$lendingGiveUpId." AND u.email = r.bidderid");
+			$item = pg_fetch_row($itemResult);
+			$amount = (int)$item[1];
+			$fetchborrowerquery = "select userpoint, blackListCount from users where email = '".$item[0]."'";
+			$fetchborrowerresult = pg_query($connection,$fetchborrowerquery);
+			if($fetchborrowerresult)
+			{
+				$borrowerrow = pg_fetch_row($fetchborrowerresult);
+				$currentpoint = (int)$borrowerrow[0];
+				$blackListCount = ((int)$borrowerrow[1]) + 1;
+				$recoveredpoint = (int) ceil(-$amount*1.5 + $currentpoint);
+				$recoverborrowerquery = "update Users set userPoint = '" .$recoveredpoint."', blackListCount = ".$blackListCount." where email = '".$item[0]."'";
+				$fetchuserpointresult = pg_query($connection,"select userpoint from users where email = '".$email."'");
+				$userpointrow = pg_fetch_row($fetchuserpointresult);
+				$awardpoint = (int) ceil($amount*1.5 + $userpointrow[0]);
+				$lenderrewardpointquery = "update Users set userPoint = '" .$awardpoint."' where email = '".$email."'";
+				$recoverborrowerresult = pg_query($connection,$recoverborrowerquery);
+				$lenderrewardpointresult = pg_query($connection,$lenderrewardpointquery);
+				if($recoverborrowerresult && $lenderrewardpointresult)
+				{
+					$deleterecordquery = "DELETE FROM record WHERE bidderId = '".$item[0]."' AND itemId = ".$lendingGiveUpId;
+					$deleterecordresult = pg_query($connection,$deleterecordquery);
+				}
+			}
+			//Do the query again to update nav bar
+			$query = "SELECT firstName, lastName, userpoint FROM users where email='".$email."'";
+        	$result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
+        	$row = pg_fetch_row($result);
+		}
+	//get advertised items
+	$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
+		FROM Advertise a, ItemList i, BiddingList b1, BiddingList b2 WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' 
+		AND b1.itemid = i.itemid AND b2.itemid = i.itemid AND b2.bidAmount >= ALL(SELECT bidAmount from BiddingList WHERE itemid = i.itemid) 
+		GROUP BY i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,b2.bidAmount") 
+		or die('Query failed:'.pg_last_error());
+		$adwithoutbid = pg_query($connection, "SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint FROM Advertise a, ItemList i 
+		WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' AND i.itemId NOT IN (SELECT itemId FROM BiddingList)")
+		or die('Query failed:'.pg_last_error());
+	//get particulars
+	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
+	or die ('Query failed: '.pg_last_error());
+	//get borrowing status
+	$borrowStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.bidderid = '".$email."' AND r.itemid = i.itemid AND i.owneremail = u.email");
+	//get lending status
+	$lendingStatus = pg_query($connection,"SELECT i.itemid, i.itemname, i.itemcategory, u.firstname, u.lastname, r.bidAmount FROM users u, record r, itemlist i WHERE r.itemid = i.itemid AND i.owneremail ='".$email."' AND u.email = r.bidderid");
 ?>
 
 <body>
@@ -126,10 +213,6 @@
 							echo "\t\t<td>$row[2]</td>\n";
 							echo "\t\t<td>$row[3]&nbsp$row[4]</td>\n";
 							echo "\t\t<td>$row[5]</td>\n";
-							/*echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
-							echo "<input type=\"hidden\" name=\"onlineid\" value=\"".$row[4]."\"/>";
-							echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
-							echo "\t</tr>\n";*/
 						}											
 					?>
 					</tbody>
@@ -142,7 +225,7 @@
 					<table class="table table-striped table-bordered table-list">
 					<thead>
 						<tr>
-						<th>itemId</th> <th>itemName</th> <th>itemCategory</th> <th>Borrower Name</th> <th>Successful Bid amount</th>
+						<th>itemId</th> <th>itemName</th> <th>itemCategory</th> <th>Borrower Name</th> <th>Successful Bid amount</th> <th>Option</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -154,10 +237,16 @@
 							echo "\t\t<td>$row[2]</td>\n";
 							echo "\t\t<td>$row[3]&nbsp$row[4]</td>\n";
 							echo "\t\t<td>$row[5]</td>\n";
-							/*echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
-							echo "<input type=\"hidden\" name=\"onlineid\" value=\"".$row[4]."\"/>";
-							echo "<button type=\"submit\" class=\"btn btn-success\">View</button></form></td>\n";
-							echo "\t</tr>\n";*/
+							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"lendingDone\" value=\"".$row[0]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">Done</button></form>\n";
+							echo "\t\t<form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"lendingClose\" value=\"".$row[0]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">Close</button></form>\n";
+							echo "\t\t<form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"lendingGiveUp\" value=\"".$row[0]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">Give Up</button></form>\n";
+							echo "\t</td></tr>\n";
 						}											
 					?>
 					</tbody>
