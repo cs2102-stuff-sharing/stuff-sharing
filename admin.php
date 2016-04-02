@@ -14,7 +14,7 @@
         $email = pg_escape_string($connection,$_SESSION['key']);
         $query = "SELECT firstName, lastName FROM users where email='".$email."'";
         $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
-        $row = pg_fetch_row($result);
+        $cRow = pg_fetch_row($result);
     }
 
     		
@@ -24,6 +24,10 @@
 	
 	//get all items
 	$itemResult = pg_query($connection,"SELECT * from itemlist;") 
+	or die ('Query failed: '.pg_last_error());
+	
+	//get all bids
+	$bidResult = pg_query($connection,"SELECT bl.itemid, il.itemname, bl.bidderid, CONCAT(u.firstname, u.lastname), u.email, bl.bidamount from biddinglist bl INNER JOIN itemlist il ON bl.itemid = il.itemid INNER JOIN users u ON bl.bidderid = u.email;") 
 	or die ('Query failed: '.pg_last_error());
 		
 	if(isset($_POST['userid']))
@@ -39,27 +43,32 @@
 	$_SESSION['itemid'] = $itemid;
 	header("Location: /stuff-sharing/admin_edititem.php");
 	}
+	
+	if(isset($_POST['deletebidid']))
+	{
+		$deletebidid = $_POST['deletebidid'];
+		$uresult = pg_query($connection, "SELECT userpoint FROM users WHERE email = '".$deletebidid[1]."'");
+		$oldbidAmount = pg_fetch_row($uresult);		
+		$newbidAmount = $oldbidAmount[0] + $deletebidid[2];		
+		$updateResult = pg_query($connection, "UPDATE users SET userpoint = '".$newbidAmount."' WHERE email = '".$deletebidid[1]."';");
+		$deleteResult = pg_query($connection, "DELETE FROM biddinglist WHERE itemid = '".$deletebidid[0]."' AND bidderid = '".$deletebidid[1]."';");
+		if($deleteResult){
+		echo ("
+		<div class=\"alert alert-info\">
+			<a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a>
+			Bid Deleted!
+		</div>
+        ");
+	}
+	}
 		
 		
 ?>
 
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/stuff-sharing/admin.php"><?php echo $row[0]. " " .$row[1] ?></a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-					
-          <ul class="nav navbar-nav navbar-right">
-
-            
-
-            <li><a href="/stuff-sharing/logout.php/">Logout</a></li>
-          </ul> 
-        </div>
-      </div>
-    </nav>
+    <?php
+      include('admin_navbar.php');
+    ?>
 
     <?php
     if(isset($_GET['msg']))
@@ -86,7 +95,7 @@
     <div class="container">
         <div class="starter-template">
             <?php
-                echo "<p>Welcome, " .$row[0]. " " .$row[1]. "</p>";
+                echo "<p>Welcome, " .$cRow[0]. " " .$cRow[1]. "</p>";
             ?>
         </div>
     </div>
@@ -148,7 +157,35 @@
 				</table>
 			</div>
 		</div>
-        
+        <div class="accordionSection" id="editItem"><h3>Drop Bids</h3>				
+			<div class="table-responsive">
+				<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+							<th>Item Name</th> <th>Bidder Name</th> <th>Bid Amount</th> <th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+							while($row = pg_fetch_row($bidResult)){
+								echo "\t<tr>\n";
+								echo "\t\t<td>$row[1]</td>\n";
+								echo "\t\t<td>$row[3]</td>\n";
+								echo "\t\t<td>$row[5]</td>\n";														
+								echo "\t\t<td><form action=\"admin.php\" method=\"post\">";
+								$postvalue=array($row[0],$row[2],$row[5]);
+								foreach($postvalue as $value)
+								{
+									echo "<input type=\"hidden\" name=\"deletebidid[]\" value=\"".$value."\"/>";
+								}								
+								echo "<button type=\"submit\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button></form></td>\n";								
+								echo "\t</tr>\n";
+							}											
+						?>
+					</tbody>
+				</table>
+			</div>
+		</div>
         
     </div>
 </body>
