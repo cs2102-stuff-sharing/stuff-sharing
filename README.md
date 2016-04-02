@@ -22,4 +22,5 @@ Stuff Sharing: the system allows people to borrow or lend stuff they own (tools,
 - Feng Junhan
 - Hoo De Lin
 - Lam Weng Cong
+- Lin Daqi
 - Urvashi Sikka
