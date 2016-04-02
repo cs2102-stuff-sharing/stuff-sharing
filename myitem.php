@@ -15,9 +15,16 @@
         $row = pg_fetch_row($result);
     }
 
+    if(isset($_POST['deleteitemid']))
+	{
+		echo "<script>alert('Yoohoo')</script>";
+		$deleteitemid = $_POST['deleteitemid'];
+		$deleteResult = pg_query($connection, "UPDATE itemlist SET itemDeleted = true WHERE itemid = ".$deleteitemid);
+	}
+
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
-    $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) AND l.itemID NOT IN (SELECT r.itemid FROM record r) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
+    $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) AND l.itemID NOT IN (SELECT r.itemid FROM record r) AND l.itemDeleted = false ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
 		//get advertised items
 		$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
 		FROM Advertise a, ItemList i, BiddingList b1, BiddingList b2 WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' 
@@ -134,7 +141,7 @@
             <table class="table table-striped table-bordered table-list">
             <thead>
               <tr>
-                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th></th> <th></th> <th></th>
+                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th>Option</th>
               </tr>
             </thead>
 						<tbody>
@@ -147,11 +154,13 @@
 							echo "\t\t<td><form id=\"adform".$row[1]."\" action=\"myitem.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"aditemid\" value=\"".$row[1]."\"/>";
 							echo "<input id=\"point".$row[1]."\" type=\"hidden\" name=\"minbid\"/>";
-							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form></td>\n";
+							echo "<button onclick=\"askMinBid('point".$row[1]."', 'adform".$row[1]."')\" class=\"btn btn-success\">advertise</button></form>\n";
 							echo "\t\t<td><form action=\"myitem.php\" method=\"post\">";
 							echo "<input type=\"hidden\" name=\"edititemid\" value=\"".$row[1]."\"/>";
-							echo "<button type=\"submit\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></button></form></td>\n";
-							echo "\t\t<td><button type=\"button\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button></td>\n";
+							echo "<button type=\"submit\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\"></span></button></form>\n";
+							echo "\t\t<td><form action=\"myitem.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"deleteitemid\" value=\"".$row[1]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-sm\"><span class=\"glyphicon glyphicon-trash\" aria-hidden=\"true\"></span></button></form></td>\n";
 							echo "\t</tr>\n";
 						}
 						?>
