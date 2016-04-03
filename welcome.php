@@ -20,22 +20,6 @@
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
 
-    if(isset($_POST['itemid']))
-		{
-		$itemid = pg_escape_string($connection,$_POST['itemid']);
-		$minbid = pg_escape_string($connection,$_POST['minbid']);
-		$AddAdQuery = "insert into Advertise(itemId,minimumBidPoint) values('". $itemid . "','" .$minbid ."')";
-		$AddAdResult = pg_query($connection, $AddAdQuery);
-			if($AddAdResult)
-			{
-				//add ad successfully
-				header("Location: /stuff-sharing/welcome.php?msg=ADV_SUCCESS");
-			}
-			else
-			{
-
-			}
-		}
 		if(isset($_POST['onlineid']))
 		{
 		$onlineid = $_POST['onlineid'];
@@ -52,9 +36,7 @@
 		
 		if(isset($_POST['biditemid']))
 		{
-		$biditemid = $_POST['biditemid'];
-		$_SESSION['biditemid'] = $biditemid;
-		header("Location: /stuff-sharing/bid.php");
+		header("Location: /stuff-sharing/bid.php?id=".$_POST['biditemid']);
 		}
 		
 		if(isset($_POST['lendingClose']))
@@ -155,6 +137,17 @@
 		$adwithoutbid = pg_query($connection, "SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint FROM Advertise a, ItemList i 
 		WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' AND i.itemId NOT IN (SELECT itemId FROM BiddingList)")
 		or die('Query failed:'.pg_last_error());
+	$mybids = pg_query($connection, "SELECT i.itemName,i.itemId, u.firstName, u.lastName, i.itemCategory, b1.bidAmount, a.minimumBidPoint, count(*), 
+	b2.bidAmount FROM Advertise a, Itemlist i, Users u, BiddingList b1, BiddingList b2, BiddingList b3 WHERE a.itemid = i.itemid AND 
+	u.email = i.owneremail AND b1.itemid = i.itemid AND b1.bidderId = '".$email."' AND b2.itemid = i.itemid AND b3.itemid = i.itemid AND 
+	b2.bidAmount >= ALL(SELECT bidAmount from BiddingList WHERE itemid = i.itemid) GROUP BY i.itemName,i.itemId, u.firstName, u.lastName, 
+	i.itemCategory, b1.bidAmount, a.minimumBidPoint, b2.bidAmount")or die('Query failed:'.pg_last_error());
+
+	if(isset($_POST['itemid']))
+	{
+		header("Location: /stuff-sharing/bid.php?id=".$_POST['itemid']);
+	}
+	
 	//get particulars
 	$particulars = pg_query($connection,"SELECT u.firstname, u.lastname, u.dob, u.email FROM users u WHERE u.email = '".$email."'") 
 	or die ('Query failed: '.pg_last_error());
@@ -242,7 +235,7 @@
     </div>
 
     <div class="container">
-    	 <div class="accordionSection" id="borrowingStatus"><h3>Borrowing Status</h3>
+    	 <div class="accordionSection" id="borrowingStatus"><h3>My Borrowing Status</h3>
 			<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
 					<thead>
@@ -266,7 +259,7 @@
 			</div>
 		</div>
 
-		 <div class="accordionSection" id="lendingStatus"><h3>Lending Status</h3>
+		 <div class="accordionSection" id="lendingStatus"><h3>My Lending Status</h3>
 			<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
 					<thead>
@@ -299,12 +292,12 @@
 					</table>
 			</div>
 		</div>
-        <div class="accordionSection" id="advertisingItems"><h3>Advertisements</h3>				
+        <div class="accordionSection" id="advertisingItems"><h3>My Advertisements</h3>				
 					<div class="table-responsive">
 					<table class="table table-striped table-bordered table-list">
 					<thead>
 						<tr>
-						<th>itemName</th> <th>itemCategory</th> <th>ownerName</th> <th>minimumBiddingPoint</th> <th>numberOfBidders</th> <th>highestBiddingPoint</th> <th></th>
+						<th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>minimumBiddingPoint</th> <th>numberOfBidders</th> <th>highestBiddingPoint</th> <th></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -335,6 +328,37 @@
 							echo "<button type=\"submit\" class=\"btn btn-success\">go manage</button></form></td>\n";
 							echo "\t</tr>\n";
 						}						
+					?>
+					</tbody>
+					</table>
+					</div>
+				</div>
+				<div class="accordionSection" id="bidItems"><h3>My Bids</h3>				
+					<div class="table-responsive">
+					<table class="table table-striped table-bordered table-list">
+					<thead>
+						<tr>
+						<th>itemName</th> <th>itemId</th> <th>ownerName</th> <th>itemCategory</th> <th>myBidAmount</th> <th>minBidPoint</th> 
+						<th>numOfBidders</th> <th>highestBidPoint</th> <th></th>
+						</tr>
+					</thead>
+					<tbody>
+					<?php
+						while($row = pg_fetch_row($mybids)){
+							echo "\t<tr>\n";
+							echo "\t\t<td>$row[0]</td>\n";
+							echo "\t\t<td>$row[1]</td>\n";
+							echo "\t\t<td>".$row[2]." ".$row[3]."</td>\n";
+							echo "\t\t<td>$row[4]</td>\n";
+							echo "\t\t<td>$row[5]</td>\n";
+							echo "\t\t<td>$row[6]</td>\n";
+							echo "\t\t<td>$row[7]</td>\n";
+							echo "\t\t<td>$row[8]</td>\n";
+							echo "\t\t<td><form action=\"welcome.php\" method=\"post\">";
+							echo "<input type=\"hidden\" name=\"biditemid\" value=\"".$row[1]."\"/>";
+							echo "<button type=\"submit\" class=\"btn btn-success\">go manage</button></form></td>\n";
+							echo "\t</tr>\n";
+						}
 					?>
 					</tbody>
 					</table>
