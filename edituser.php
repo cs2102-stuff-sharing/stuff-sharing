@@ -11,9 +11,13 @@
   else
   {
 	$email = pg_escape_string($connection,$_SESSION['key']);
-    $query = "SELECT firstName, lastName FROM users where email='".$email."'";
+    $query = "SELECT firstName, lastName, isAdmin FROM users where email='".$email."'";
     $result = pg_query($connection,$query) or die('Query failed:'.pg_last_error());
     $cRow = pg_fetch_row($result);
+    if(!$cRow[2])
+    {
+    	header("Location: /stuff-sharing/error.php");
+    }
   }
 	
 	if(isset($_SESSION['userid']))

@@ -23,7 +23,7 @@
 
     //get archived items
     $email = pg_escape_string($connection,$_SESSION['key']);
-    $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) AND l.itemID NOT IN (SELECT r.itemid FROM record r) ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
+    $archivedItems = pg_query($connection,"SELECT l.itemName,l.itemId,l.itemCategory,l.itemDescription FROM ItemList l WHERE l.itemId NOT IN (SELECT a.itemId FROM Advertise a) AND l.itemID NOT IN (SELECT r.itemid FROM record r) AND l.ownerEmail = '".$email."' ORDER BY itemName ASC") or die('Query failed:'.pg_last_error());
 		//get advertised items
 		$advertisements = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,a.minimumBidPoint,count(*),b2.bidAmount 
 		FROM Advertise a, ItemList i, BiddingList b1, BiddingList b2 WHERE a.itemid = i.itemid AND i.owneremail = '".$email."' 

@@ -19,7 +19,7 @@
 	if(isset($_SESSION['itemid']))
 	{
 		$itemid = pg_escape_string($connection,$_SESSION['itemid']);
-		$updateResult = pg_query($connection,"SELECT i.owneremail, i.itemname, i.itemdescription, i.itemdeleted, i.itemcategory
+		$updateResult = pg_query($connection,"SELECT i.owneremail, i.itemname, i.itemdescription, i.itemcategory
 		FROM itemList i WHERE i.itemid='".$itemid."'");
 		if(!$updateResult)
 		{
@@ -32,8 +32,7 @@
 			$owneremail = $row[0];
 			$itemname = $row[1];			
 			$itemdescription = $row[2];			
-			$itemdeleted = $row[3];
-			$itemcategory = $row[4];
+			$itemcategory = $row[3];
 			
 		}
 	}
