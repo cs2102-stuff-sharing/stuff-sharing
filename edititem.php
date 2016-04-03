@@ -18,8 +18,8 @@
 	if(isset($_SESSION['edititemid']))
 	{
 		$edititemid = pg_escape_string($connection,$_SESSION['edititemid']);
-		$itemresult = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,i.itemDescription 
-		FROM ItemList i WHERE i.itemid = '".$edititemid."'");  
+		$itemresult = pg_query($connection,"SELECT i.itemName,i.itemId,i.itemCategory,i.itemDescription, i.ownerEmail 
+		FROM ItemList i WHERE i.itemid = '".$edititemid."'");
 		if(!$itemresult)
 		{
 			$message = "Something seems to be wrong, please try later";
@@ -30,7 +30,11 @@
 			$itemName = $rowContent[0];
 			$itemId = $rowContent[1];
 			$itemCategory = $rowContent[2];
-			$itemDescription = $rowContent[3];			
+			$itemDescription = $rowContent[3];
+      if($rowContent[4] != $email)
+      {
+        header("Location: /stuff-sharing/error.php");
+      }
 		}
 	}
 
