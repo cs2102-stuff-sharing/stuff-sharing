@@ -60,9 +60,6 @@
 		    </table>
 		  </div>
 	    </div>
-		<div class="panel-footer">
-		  <a href="/stuff-sharing/additem.php" class="btn btn-info" role="button">add Item</a>
-		</div>
       </div>
     </div>
   </div>

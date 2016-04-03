@@ -140,7 +140,7 @@
             <table class="table table-striped table-bordered table-list">
             <thead>
               <tr>
-                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th>Option</th>
+                <th>itemName</th> <th>itemId</th> <th>itemCategory</th> <th>itemDescription</th> <th>Option</th> <th></th> <th></th>
               </tr>
             </thead>
 						<tbody>
@@ -167,4 +167,7 @@
             </table>
           </div></div>
     </div>
+		<div class="panel-footer">
+		  <a href="/stuff-sharing/additem.php" class="btn btn-info" role="button">add Item</a>
+		</div>
 </body>

@@ -6,7 +6,6 @@
         <div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
 						<li><a href="myitem.php">My Items</a></li>
-						<li><a href="additem.php">Add Item</a></li>
 						<li><a href="itemList.php">Explore</a></li>
             <li><a href="searchItem.php">Search</a></li>
 					</ul>
