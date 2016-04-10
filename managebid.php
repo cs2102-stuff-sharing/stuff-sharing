@@ -86,7 +86,7 @@
 		}
 		$deleteadquery = "DELETE FROM Advertise WHERE itemId = '".$biditemid."'";
 		$deleteadresult = pg_query($connection,$deleteadquery);
-		if(!($fetchpointresult && $recoverpointresult && $deletebidresult && $deleteadresult))
+		if(!($deleteadresult))
 		{
 			header("Location: /stuff-sharing/error.php");
 		}
