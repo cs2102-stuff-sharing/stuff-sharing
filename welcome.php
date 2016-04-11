@@ -108,7 +108,7 @@
 				$borrowerrow = pg_fetch_row($fetchborrowerresult);
 				$currentpoint = (int)$borrowerrow[0];
 				$blackListCount = ((int)$borrowerrow[1]) + 1;
-				$recoveredpoint = (int) ceil(-$amount*1.5 + $currentpoint);
+				$recoveredpoint = (int) max(ceil(-$amount*1.5 + $currentpoint), 0);
 				$recoverborrowerquery = "update Users set userPoint = '" .$recoveredpoint."', blackListCount = ".$blackListCount." where email = '".$item[0]."'";
 				$fetchuserpointresult = pg_query($connection,"select userpoint from users where email = '".$email."'");
 				$userpointrow = pg_fetch_row($fetchuserpointresult);
